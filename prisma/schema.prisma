@@ -1,0 +1,110 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Account {
+  id                 String  @id @default(cuid())
+  userId             String  @map("user_id")
+  type               String
+  provider           String
+  providerAccountId  String  @map("provider_account_id")
+  refresh_token      String? @db.Text
+  access_token       String? @db.Text
+  expires_at         Int?
+  token_type         String?
+  scope              String?
+  id_token           String? @db.Text
+  session_state      String?
+ 
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+ 
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+ 
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique @map("session_token")
+  userId       String   @map("user_id")
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+ 
+  @@map("sessions")
+}
+ 
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime? @map("email_verified")
+  image         String?
+  role          Role      @default(USER)
+  accounts      Account[]
+  sessions      Session[]
+  workouts      Workout[]
+  createdAt     DateTime  @default(now())
+ 
+  @@map("users")
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+ 
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+ 
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+model Workout {
+  id        String     @id @default(cuid())
+  date      DateTime   @default(now())
+  userId    String
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  exercises Exercise[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@map("workouts")
+}
+
+model Exercise {
+  id        String   @id @default(cuid())
+  name      String
+  workoutId String
+  workout   Workout  @relation(fields: [workoutId], references: [id], onDelete: Cascade)
+  sets      Set[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("exercises")
+}
+
+model Set {
+  id         String   @id @default(cuid())
+  reps       Int
+  weight     Float?
+  exerciseId String
+  exercise   Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("sets")
+}
