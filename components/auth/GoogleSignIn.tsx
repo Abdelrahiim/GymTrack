@@ -13,27 +13,17 @@ interface GoogleSignInProps {
 
 export function GoogleSignIn({ isSignUp = false }: GoogleSignInProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
 
   const handleGoogleSignIn = async () => {
     try {
       setIsLoading(true);
-      const result = await signIn("google", { 
-        callbackUrl: "/",
-        redirect: false,
+      await signIn("google", { 
+        callbackUrl: "/api/auth/callback/google",
+        redirect: true,
       });
-
-      if (result?.error) {
-        toast.error("Something went wrong with Google sign in.");
-        return;
-      }
-
-      // If sign in was successful, redirect to home page
-      router.push("/");
-      router.refresh();
     } catch (error) {
-      toast.error("Something went wrong with Google sign in.");
-    } finally {
+      console.error("Google sign in error:", error);
+      toast.error("An unexpected error occurred. Please try again.");
       setIsLoading(false);
     }
   };

@@ -11,6 +11,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       Google({
         clientId: process.env.GOOGLE_CLIENT_ID!,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+        authorization: {
+          url: "https://accounts.google.com/o/oauth2/v2/auth",
+          params: {
+            prompt: "consent",
+            access_type: "offline",
+            response_type: "code",
+            scope: "openid email profile"
+          }
+        }
       }),
       Credentials({
         name: "credentials",
@@ -62,7 +71,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       error: "/auth/error",
     },
     session: {
-      strategy: "jwt",
+      strategy: "database",
     },
+    debug: process.env.NODE_ENV === "development",
   });
   
