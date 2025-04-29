@@ -24,14 +24,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           }
 
           const user = await prisma.user.findUnique({
-            where: { email: credentials.email },
+            where: { email: credentials.email as string},
           });
 
           if (!user || !user.password) {
             throw new Error("Invalid credentials");
           }
 
-          const isValid = await compare(credentials.password, user.password);
+          const isValid = await compare(credentials.password as string, user.password);
 
           if (!isValid) {
             throw new Error("Invalid credentials");

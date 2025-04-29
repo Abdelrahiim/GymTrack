@@ -5,6 +5,7 @@ import { signIn } from "next-auth/react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 interface GoogleSignInProps {
   isSignUp?: boolean;
@@ -12,14 +13,24 @@ interface GoogleSignInProps {
 
 export function GoogleSignIn({ isSignUp = false }: GoogleSignInProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   const handleGoogleSignIn = async () => {
     try {
       setIsLoading(true);
-      await signIn("google", { 
+      const result = await signIn("google", { 
         callbackUrl: "/",
-        redirect: true,
+        redirect: false,
       });
+
+      if (result?.error) {
+        toast.error("Something went wrong with Google sign in.");
+        return;
+      }
+
+      // If sign in was successful, redirect to home page
+      router.push("/");
+      router.refresh();
     } catch (error) {
       toast.error("Something went wrong with Google sign in.");
     } finally {
