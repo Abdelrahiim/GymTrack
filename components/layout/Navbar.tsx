@@ -14,14 +14,17 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu } from "lucide-react";
+import { Menu, Moon, Sun } from "lucide-react";
+import { useTheme } from "@/components/providers/ThemeProvider";
+import { cn } from "@/lib/utils";
 
 export default function Navbar() {
   const { data: session } = useSession();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { theme, toggleTheme } = useTheme();
 
   return (
-    <nav className="bg-gradient-to-r from-blue-700 to-indigo-800 text-white shadow-lg">
+    <nav className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="relative flex items-center justify-between h-16">
           <div className="flex-1 flex items-center justify-start">
@@ -31,7 +34,7 @@ export default function Navbar() {
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="h-8 w-8 text-white"
+                className="h-8 w-8 text-primary"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -50,20 +53,29 @@ export default function Navbar() {
               <div className="hidden md:flex ml-10 space-x-1">
                 <Link
                   href="/"
-                  className="px-4 py-2 rounded-md text-sm font-medium text-white hover:bg-blue-600 transition-colors duration-200"
+                  className={cn(
+                    "px-4 py-2 rounded-md text-sm font-medium",
+                    "text-muted-foreground hover:text-foreground transition-colors"
+                  )}
                 >
                   Dashboard
                 </Link>
                 <Link
                   href="/workout/new"
-                  className="px-4 py-2 rounded-md text-sm font-medium text-white hover:bg-blue-600 transition-colors duration-200"
+                  className={cn(
+                    "px-4 py-2 rounded-md text-sm font-medium",
+                    "text-muted-foreground hover:text-foreground transition-colors"
+                  )}
                 >
                   New Workout
                 </Link>
                 {session.user.role === "ADMIN" && (
                   <Link
                     href="/admin/users"
-                    className="px-4 py-2 rounded-md text-sm font-medium text-white hover:bg-blue-600 transition-colors duration-200"
+                    className={cn(
+                      "px-4 py-2 rounded-md text-sm font-medium",
+                      "text-muted-foreground hover:text-foreground transition-colors"
+                    )}
                   >
                     Manage Users
                   </Link>
@@ -72,7 +84,18 @@ export default function Navbar() {
             )}
           </div>
 
-          <div className="ml-3 relative hidden md:block">
+          <div className="ml-3 relative hidden md:flex items-center space-x-4">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleTheme}
+            >
+              {theme === "dark" ? (
+                <Sun className="h-5 w-5" />
+              ) : (
+                <Moon className="h-5 w-5" />
+              )}
+            </Button>
             {session ? (
               <DropdownMenu>
                 <DropdownMenuTrigger className="flex items-center focus:outline-none">
@@ -88,7 +111,7 @@ export default function Navbar() {
                       height={32}
                     />
                   ) : (
-                    <div className="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-medium">
+                    <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-medium">
                       <span>{session.user.name?.charAt(0)}</span>
                     </div>
                   )}
@@ -105,7 +128,7 @@ export default function Navbar() {
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     onClick={() => signOut({ callbackUrl: "/auth/signin" })}
-                    className="text-red-600 focus:text-red-600"
+                    className="text-destructive focus:text-destructive"
                   >
                     Sign out
                   </DropdownMenuItem>
@@ -114,7 +137,10 @@ export default function Navbar() {
             ) : (
               <Link
                 href="/auth/signin"
-                className="px-4 py-2 rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-500 transition-colors duration-200 shadow"
+                className={cn(
+                  "px-4 py-2 rounded-md text-sm font-medium",
+                  "bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+                )}
               >
                 Sign In
               </Link>
@@ -123,17 +149,29 @@ export default function Navbar() {
 
           {/* Mobile menu button */}
           <div className="flex items-center md:hidden">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="mr-2"
+              onClick={toggleTheme}
+            >
+              {theme === "dark" ? (
+                <Sun className="h-5 w-5" />
+              ) : (
+                <Moon className="h-5 w-5" />
+              )}
+            </Button>
             <Sheet>
               <SheetTrigger asChild>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="text-white hover:bg-blue-600 focus:outline-none"
+                  className="focus:outline-none"
                 >
                   <Menu className="h-6 w-6" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-[300px] bg-gradient-to-b from-blue-700 to-indigo-800 text-white">
+              <SheetContent side="right" className="w-[300px]">
                 <div className="flex flex-col h-full">
                   <div className="flex-1 space-y-4 py-4">
                     {session ? (
@@ -148,45 +186,60 @@ export default function Navbar() {
                               height={40}
                             />
                           ) : (
-                            <div className="h-10 w-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-medium">
+                            <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-medium">
                               <span>{session.user.name?.charAt(0)}</span>
                             </div>
                           )}
                           <div>
                             <p className="text-sm font-medium">{session.user.name}</p>
-                            <p className="text-xs text-blue-200">{session.user.email}</p>
+                            <p className="text-xs text-muted-foreground">{session.user.email}</p>
                           </div>
                         </div>
                         <div className="space-y-1">
                           <Link
                             href="/"
-                            className="block px-4 py-2 text-sm hover:bg-blue-600 rounded-md"
+                            className={cn(
+                              "block px-4 py-2 text-sm",
+                              "text-muted-foreground hover:text-foreground transition-colors"
+                            )}
                           >
                             Dashboard
                           </Link>
                           <Link
                             href="/workout/new"
-                            className="block px-4 py-2 text-sm hover:bg-blue-600 rounded-md"
+                            className={cn(
+                              "block px-4 py-2 text-sm",
+                              "text-muted-foreground hover:text-foreground transition-colors"
+                            )}
                           >
                             New Workout
                           </Link>
                           {session.user.role === "ADMIN" && (
                             <Link
                               href="/admin/users"
-                              className="block px-4 py-2 text-sm hover:bg-blue-600 rounded-md"
+                              className={cn(
+                                "block px-4 py-2 text-sm",
+                                "text-muted-foreground hover:text-foreground transition-colors"
+                              )}
                             >
                               Manage Users
                             </Link>
                           )}
                           <Link
                             href="/profile"
-                            className="block px-4 py-2 text-sm hover:bg-blue-600 rounded-md"
+                            className={cn(
+                              "block px-4 py-2 text-sm",
+                              "text-muted-foreground hover:text-foreground transition-colors"
+                            )}
                           >
                             Profile
                           </Link>
                           <Link
                             href="/settings"
-                            className="block px-4 py-2 text-sm hover:bg-blue-600 rounded-md"
+                            className={cn(
+                              "block px-4 py-2 text-sm",
+                              "text-muted-foreground hover:text-foreground transition-colors"
+                            )}
                           >
                             Settings
                           </Link>
@@ -205,7 +258,10 @@ export default function Navbar() {
                       <div className="space-y-4">
                         <Link
                           href="/auth/signin"
-                          className="block w-full px-4 py-2 text-center text-sm font-medium text-white bg-blue-600 hover:bg-blue-500 rounded-md transition-colors duration-200"
+                          className={cn(
+                            "block w-full px-4 py-2 text-center text-sm font-medium",
+                            "bg-primary text-primary-foreground hover:bg-primary/90 rounded-md transition-colors"
+                          )}
                         >
                           Sign In
                         </Link>

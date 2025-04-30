@@ -5,6 +5,11 @@ import { getWorkouts, getLastSevenDaysWorkouts } from "@/app/actions/workouts";
 import Link from "next/link";
 import { auth } from "@/auth";
 import { Session } from "next-auth";
+import { cn } from "@/lib/utils";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { Button } from "@/components/ui/button";
+import { Dumbbell, Plus, List } from "lucide-react";
 
 interface Set {
   id: string;
@@ -76,10 +81,10 @@ export default async function Home() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       <div className="mb-8">
-        <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">
+        <h1 className="text-3xl font-extrabold tracking-tight">
           Welcome, {session.user.name || 'User'}
         </h1>
-        <p className="mt-2 text-lg text-gray-600">
+        <p className="mt-2 text-lg text-muted-foreground">
           Track your gym progress and achieve your fitness goals
         </p>
       </div>
@@ -88,10 +93,13 @@ export default async function Home() {
         <div className="lg:col-span-2 space-y-8">
           <section>
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">
+              <h2 className="text-2xl font-bold">
                 Last 7 Days Progress
               </h2>
-              <span className="px-4 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
+              <span className={cn(
+                "px-4 py-1 rounded-full text-sm font-medium",
+                "bg-primary/10 text-primary"
+              )}>
                 Last 7 Days
               </span>
             </div>
@@ -100,13 +108,13 @@ export default async function Home() {
 
           <section>
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">
+              <h2 className="text-2xl font-bold">
                 Recent Workouts
               </h2>
               {recentWorkouts.length > 0 && (
                 <Link
                   href="/workout"
-                  className="text-blue-600 hover:text-blue-800 font-medium"
+                  className="text-primary hover:text-primary/80 font-medium"
                 >
                   View all →
                 </Link>
@@ -120,110 +128,99 @@ export default async function Home() {
                 ))}
               </div>
             ) : (
-              <div className="bg-white p-8 rounded-xl shadow-sm text-center border border-gray-200">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-16 w-16 mx-auto text-gray-400 mb-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
-                  />
-                </svg>
-                <p className="text-gray-600 text-lg mb-4">
-                  No workouts recorded yet
-                </p>
-                <p className="text-gray-500 mb-6">
-                  Start by logging your first workout session
-                </p>
-                <Link
-                  href="/workout/new"
-                  className="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
-                >
-                  Log Your First Workout
-                </Link>
-              </div>
+              <Card>
+                <CardContent className="p-8 text-center">
+                  <Dumbbell className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
+                  <p className="text-muted-foreground text-lg mb-4">
+                    No workouts recorded yet
+                  </p>
+                  <p className="text-muted-foreground mb-6">
+                    Start by logging your first workout session
+                  </p>
+                  <Button asChild>
+                    <Link href="/workout/new">
+                      Log Your First Workout
+                    </Link>
+                  </Button>
+                </CardContent>
+              </Card>
             )}
           </section>
         </div>
 
         <div className="lg:col-span-1 space-y-8">
-          <section className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-xl shadow-lg p-6 text-white">
-            <h2 className="text-xl font-bold mb-6">Quick Stats</h2>
-            <div className="space-y-6">
-              <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
-                <p className="text-white/80 text-sm font-medium">
+          <Card className="border-none bg-gradient-to-b from-muted/50 to-muted shadow-md">
+            <CardHeader>
+              <CardTitle>Quick Stats</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="bg-background/50 backdrop-blur-sm rounded-lg p-4">
+                <p className="text-sm font-medium">
                   Workouts This Week
                 </p>
                 <div className="flex items-end justify-between">
                   <p className="text-4xl font-extrabold mt-1">
                     {recentWorkouts.length}
                   </p>
-                  <p className="text-white/80">of {daysInWeek} days</p>
+                  <p className="text-muted-foreground">of {daysInWeek} days</p>
                 </div>
-                <div className="w-full bg-white/20 h-2 rounded-full mt-2">
-                  <div
-                    className="bg-white h-2 rounded-full"
-                    style={{
-                      width: `${Math.min(
-                        100,
-                        (recentWorkouts.length / 7) * 100
-                      )}%`,
-                    }}
-                  ></div>
-                </div>
+                <Progress 
+                  value={Math.min(100, (recentWorkouts.length / 7) * 100)} 
+                  className="mt-2"
+                />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
-                  <p className="text-white/80 text-sm font-medium">
-                    Total Workouts
-                  </p>
-                  <p className="text-3xl font-bold mt-1">{totalWorkouts}</p>
-                </div>
+                <Card className="bg-background/50 backdrop-blur-sm border-none">
+                  <CardContent className="p-4">
+                    <p className="text-sm font-medium">
+                      Total Workouts
+                    </p>
+                    <p className="text-3xl font-bold mt-1">{totalWorkouts}</p>
+                  </CardContent>
+                </Card>
 
-                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
-                  <p className="text-white/80 text-sm font-medium">
-                    Total Exercises
-                  </p>
-                  <p className="text-3xl font-bold mt-1">{totalExercises}</p>
-                </div>
+                <Card className="bg-background/50 backdrop-blur-sm border-none">
+                  <CardContent className="p-4">
+                    <p className="text-sm font-medium">
+                      Total Exercises
+                    </p>
+                    <p className="text-3xl font-bold mt-1">{totalExercises}</p>
+                  </CardContent>
+                </Card>
 
-                <div className="col-span-2 bg-white/10 backdrop-blur-sm rounded-lg p-4">
-                  <p className="text-white/80 text-sm font-medium">
-                    Total Sets
-                  </p>
-                  <p className="text-3xl font-bold mt-1">{totalSets}</p>
-                </div>
+                <Card className="col-span-2 bg-background/50 backdrop-blur-sm border-none">
+                  <CardContent className="p-4">
+                    <p className="text-sm font-medium">
+                      Total Sets
+                    </p>
+                    <p className="text-3xl font-bold mt-1">{totalSets}</p>
+                  </CardContent>
+                </Card>
               </div>
-            </div>
-          </section>
+            </CardContent>
+          </Card>
 
-          <section className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">
-              Quick Actions
-            </h2>
-            <div className="space-y-3">
-              <Link
-                href="/workout/new"
-                className="block w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white text-center font-medium rounded-lg shadow transition-colors duration-200"
-              >
-                Log New Workout
-              </Link>
+          <Card>
+            <CardHeader>
+              <CardTitle>Quick Actions</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Button asChild className="w-full">
+                <Link href="/workout/new">
+                  <Plus className="mr-2 h-4 w-4" />
+                  Log New Workout
+                </Link>
+              </Button>
 
-              <Link
-                href="/workout"
-                className="block w-full py-3 px-4 bg-white hover:bg-gray-50 text-gray-800 text-center font-medium rounded-lg border border-gray-300 transition-colors duration-200"
-              >
-                View All Workouts
-              </Link>
-            </div>
-          </section>
+              <Button asChild variant="outline" className="w-full">
+                <Link href="/workout">
+                  <List className="mr-2 h-4 w-4" />
+                  View All Workouts
+                </Link>
+              </Button>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>

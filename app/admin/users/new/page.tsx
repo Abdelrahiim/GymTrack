@@ -162,7 +162,7 @@ export default function NewUser() {
               <Button
                 type="submit"
                 disabled={loading}
-                className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700"
+                className="w-full sm:w-auto"
               >
                 {loading ? (
                   <div className="flex items-center">
