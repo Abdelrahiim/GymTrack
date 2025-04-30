@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Facebook, Instagram } from "lucide-react";
+import { FaFacebook, FaInstagram, FaTiktok, FaYoutube } from "react-icons/fa";
 
 export default function Footer() {
   return (
@@ -23,21 +23,35 @@ export default function Footer() {
             </svg>
             <span className="font-bold text-lg">GymTrack</span>
           </div>
-          
+
           <div className="flex items-center space-x-4 mb-4 md:mb-0">
-            <Link 
-              href="https://facebook.com" 
+            <Link
+              href="https://www.facebook.com/share/1HdfNPvs1k/?mibextid=wwXIfr"
               target="_blank"
               className="text-muted-foreground hover:text-primary transition-colors"
             >
-              <Facebook className="h-5 w-5" />
+              <FaFacebook className="h-5 w-5" />
             </Link>
-            <Link 
-              href="https://instagram.com" 
+            <Link
+              href="https://www.instagram.com/mohammed_saleh_fahmey?igsh=eDhwOXcwNXZlbjB4&utm_source=qr"
               target="_blank"
               className="text-muted-foreground hover:text-primary transition-colors"
             >
-              <Instagram className="h-5 w-5" />
+              <FaInstagram className="h-5 w-5" />
+            </Link>
+            <Link
+              href="https://www.tiktok.com/@cap_mohamed_saleh?_t=ZS-8vxmT0cxsl6&_r=1"
+              target="_blank"
+              className="text-muted-foreground hover:text-primary transition-colors"
+            >
+              <FaTiktok className="h-5 w-5" />
+            </Link>
+            <Link
+              href="https://www.youtube.com/@capmohamedsaleh4132"
+              target="_blank"
+              className="text-muted-foreground hover:text-primary transition-colors"
+            >
+              <FaYoutube className="h-5 w-5" />
             </Link>
           </div>
 
