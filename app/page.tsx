@@ -1,36 +1,45 @@
-
 import { redirect } from "next/navigation";
 import { WorkoutCard } from "@/components/workout/WorkoutCard";
 import { WeeklyProgress } from "@/components/dashboard/WeeklyProgress";
-import { getWorkouts } from "@/app/actions/workouts";
+import { getWorkouts, getLastSevenDaysWorkouts } from "@/app/actions/workouts";
 import Link from "next/link";
 import { auth } from "@/auth";
+import { Session } from "next-auth";
+
+interface Set {
+  id: string;
+  reps: number;
+  weight: number | null;
+}
+
+interface Exercise {
+  id: string;
+  name: string;
+  sets: Set[];
+}
+
+interface Workout {
+  id: string;
+  date: Date;
+  exercises: Exercise[];
+}
 
 export default async function Home() {
-  const session = await auth();
-  console.log(session);
+  const session = (await auth()) as Session & {
+    user: {
+      id: string;
+      name?: string | null;
+      email?: string | null;
+      role?: string | null;
+    };
+  };
 
   if (!session) {
     redirect("/auth/signin");
   }
 
   // Get user's recent workouts
-  const { workouts: recentWorkouts } = await getWorkouts();
-
-  // Get workouts for the current week
-  const today = new Date();
-  const startOfWeek = new Date(today);
-  startOfWeek.setDate(today.getDate() - today.getDay());
-  startOfWeek.setHours(0, 0, 0, 0);
-
-  const endOfWeek = new Date(startOfWeek);
-  endOfWeek.setDate(startOfWeek.getDate() + 6);
-  endOfWeek.setHours(23, 59, 59, 999);
-
-  const weeklyWorkouts = recentWorkouts.filter((workout) => {
-    const workoutDate = new Date(workout.date);
-    return workoutDate >= startOfWeek && workoutDate <= endOfWeek;
-  });
+  const { workouts: recentWorkouts } = await getLastSevenDaysWorkouts();
 
   // Calculate the days in the week
   const daysInWeek = 7;
@@ -38,24 +47,37 @@ export default async function Home() {
   // Get some basic stats
   const totalWorkouts = recentWorkouts.length;
   const totalExercises = recentWorkouts.reduce(
-    (count, workout) => count + workout.exercises.length,
+    (count: number, workout: Workout) => count + workout.exercises.length,
     0
   );
   const totalSets = recentWorkouts.reduce(
-    (count, workout) =>
+    (count: number, workout: Workout) =>
       count +
       workout.exercises.reduce(
-        (sets, exercise) => sets + exercise.sets.length,
+        (sets: number, exercise: Exercise) => sets + exercise.sets.length,
         0
       ),
     0
   );
 
+  // Transform workouts to match WorkoutCard props
+  const transformedWorkouts = recentWorkouts.map((workout: Workout) => ({
+    id: workout.id,
+    date: workout.date.toISOString(),
+    exercises: workout.exercises.map((exercise: Exercise) => ({
+      name: exercise.name,
+      sets: exercise.sets.map((set: Set) => ({
+        reps: set.reps,
+        weight: set.weight || 0
+      }))
+    }))
+  }));
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       <div className="mb-8">
         <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">
-          Welcome, {session.user.name}
+          Welcome, {session.user.name || 'User'}
         </h1>
         <p className="mt-2 text-lg text-gray-600">
           Track your gym progress and achieve your fitness goals
@@ -67,17 +89,13 @@ export default async function Home() {
           <section>
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold text-gray-900">
-                Weekly Progress
+                Last 7 Days Progress
               </h2>
               <span className="px-4 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
-                Week of{" "}
-                {startOfWeek.toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                })}
+                Last 7 Days
               </span>
             </div>
-            <WeeklyProgress workouts={weeklyWorkouts} />
+            <WeeklyProgress workouts={recentWorkouts} />
           </section>
 
           <section>
@@ -87,7 +105,7 @@ export default async function Home() {
               </h2>
               {recentWorkouts.length > 0 && (
                 <Link
-                  href="/workouts"
+                  href="/workout"
                   className="text-blue-600 hover:text-blue-800 font-medium"
                 >
                   View all →
@@ -97,7 +115,7 @@ export default async function Home() {
 
             {recentWorkouts.length > 0 ? (
               <div className="space-y-6">
-                {recentWorkouts.slice(0, 5).map((workout) => (
+                {transformedWorkouts.slice(0, 5).map((workout) => (
                   <WorkoutCard key={workout.id} workout={workout} />
                 ))}
               </div>
@@ -144,7 +162,7 @@ export default async function Home() {
                 </p>
                 <div className="flex items-end justify-between">
                   <p className="text-4xl font-extrabold mt-1">
-                    {weeklyWorkouts.length}
+                    {recentWorkouts.length}
                   </p>
                   <p className="text-white/80">of {daysInWeek} days</p>
                 </div>
@@ -154,7 +172,7 @@ export default async function Home() {
                     style={{
                       width: `${Math.min(
                         100,
-                        (weeklyWorkouts.length / 7) * 100
+                        (recentWorkouts.length / 7) * 100
                       )}%`,
                     }}
                   ></div>
@@ -199,7 +217,7 @@ export default async function Home() {
               </Link>
 
               <Link
-                href="/workouts"
+                href="/workout"
                 className="block w-full py-3 px-4 bg-white hover:bg-gray-50 text-gray-800 text-center font-medium rounded-lg border border-gray-300 transition-colors duration-200"
               >
                 View All Workouts

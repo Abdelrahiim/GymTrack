@@ -13,6 +13,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Menu } from "lucide-react";
 
 export default function Navbar() {
   const { data: session } = useSession();
@@ -121,91 +123,100 @@ export default function Navbar() {
 
           {/* Mobile menu button */}
           <div className="flex items-center md:hidden">
-            <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="inline-flex items-center justify-center p-2 rounded-md text-white hover:bg-blue-600 focus:outline-none"
-            >
-              <svg
-                className={`${isMenuOpen ? "hidden" : "block"} h-6 w-6`}
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
-              </svg>
-              <svg
-                className={`${isMenuOpen ? "block" : "hidden"} h-6 w-6`}
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </button>
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-white hover:bg-blue-600 focus:outline-none"
+                >
+                  <Menu className="h-6 w-6" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-[300px] bg-gradient-to-b from-blue-700 to-indigo-800 text-white">
+                <div className="flex flex-col h-full">
+                  <div className="flex-1 space-y-4 py-4">
+                    {session ? (
+                      <>
+                        <div className="flex items-center space-x-4 px-4 py-2">
+                          {session.user.image ? (
+                            <Image
+                              className="h-10 w-10 rounded-full object-cover"
+                              src={session.user.image}
+                              alt={`${session.user.name}'s profile`}
+                              width={40}
+                              height={40}
+                            />
+                          ) : (
+                            <div className="h-10 w-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-medium">
+                              <span>{session.user.name?.charAt(0)}</span>
+                            </div>
+                          )}
+                          <div>
+                            <p className="text-sm font-medium">{session.user.name}</p>
+                            <p className="text-xs text-blue-200">{session.user.email}</p>
+                          </div>
+                        </div>
+                        <div className="space-y-1">
+                          <Link
+                            href="/"
+                            className="block px-4 py-2 text-sm hover:bg-blue-600 rounded-md"
+                          >
+                            Dashboard
+                          </Link>
+                          <Link
+                            href="/workout/new"
+                            className="block px-4 py-2 text-sm hover:bg-blue-600 rounded-md"
+                          >
+                            New Workout
+                          </Link>
+                          {session.user.role === "ADMIN" && (
+                            <Link
+                              href="/admin/users"
+                              className="block px-4 py-2 text-sm hover:bg-blue-600 rounded-md"
+                            >
+                              Manage Users
+                            </Link>
+                          )}
+                          <Link
+                            href="/profile"
+                            className="block px-4 py-2 text-sm hover:bg-blue-600 rounded-md"
+                          >
+                            Profile
+                          </Link>
+                          <Link
+                            href="/settings"
+                            className="block px-4 py-2 text-sm hover:bg-blue-600 rounded-md"
+                          >
+                            Settings
+                          </Link>
+                        </div>
+                        <div className="pt-4">
+                          <Button
+                            variant="destructive"
+                            className="w-full"
+                            onClick={() => signOut({ callbackUrl: "/auth/signin" })}
+                          >
+                            Sign out
+                          </Button>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="space-y-4">
+                        <Link
+                          href="/auth/signin"
+                          className="block w-full px-4 py-2 text-center text-sm font-medium text-white bg-blue-600 hover:bg-blue-500 rounded-md transition-colors duration-200"
+                        >
+                          Sign In
+                        </Link>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </SheetContent>
+            </Sheet>
           </div>
         </div>
-      </div>
-
-      {/* Mobile menu */}
-      <div className={`${isMenuOpen ? "block" : "hidden"} md:hidden`}>
-        {session ? (
-          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 border-t border-blue-600">
-            <Link
-              href="/"
-              className="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-blue-600"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Dashboard
-            </Link>
-            <Link
-              href="/workout/new"
-              className="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-blue-600"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              New Workout
-            </Link>
-            {session.user.role === "ADMIN" && (
-              <Link
-                href="/admin/users"
-                className="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-blue-600"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Manage Users
-              </Link>
-            )}
-            <Button
-              onClick={() => {
-                setIsMenuOpen(false);
-                signOut({ callbackUrl: "/auth/signin" });
-              }}
-              className="w-full text-left block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-blue-600"
-            >
-              Sign Out
-            </Button>
-          </div>
-        ) : (
-          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 border-t border-blue-600">
-            <Link
-              href="/auth/signin"
-              className="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-blue-600"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Sign In
-            </Link>
-          </div>
-        )}
       </div>
     </nav>
   );

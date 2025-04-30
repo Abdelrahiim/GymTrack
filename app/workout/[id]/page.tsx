@@ -3,6 +3,9 @@ import { redirect, notFound } from "next/navigation";
 import prisma from "@/lib/prisma";
 import Link from "next/link";
 import { format } from "date-fns";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft, Dumbbell } from "lucide-react";
 
 export default async function WorkoutDetails({
   params,
@@ -48,56 +51,62 @@ export default async function WorkoutDetails({
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <div className="flex items-center mb-6">
-        <Link href="/" className="text-blue-600 hover:text-blue-800 mr-4">
-          ← Back to Dashboard
-        </Link>
+    <div className="container mx-auto px-4 py-8 space-y-6">
+      <div className="flex items-center gap-4">
+        <Button variant="ghost" size="icon" asChild>
+          <Link href="/">
+            <ArrowLeft className="h-5 w-5" />
+          </Link>
+        </Button>
         <h1 className="text-3xl font-bold">Workout Details</h1>
       </div>
 
-      <div className="bg-white shadow rounded-lg p-6 mb-6">
-        <div className="flex flex-wrap justify-between mb-6">
-          <div>
-            <h2 className="text-2xl font-semibold">
-              {format(new Date(workout.date), "EEEE, MMMM d, yyyy")}
-            </h2>
-            {isAdmin && !isOwner && (
-              <p className="text-gray-500 mt-1">
-                User: {workout.user.name || "Unknown"}
-              </p>
-            )}
-          </div>
-        </div>
-
-        <div className="space-y-8">
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-2xl">
+            {format(new Date(workout.date), "EEEE, MMMM d, yyyy")}
+          </CardTitle>
+          {isAdmin && !isOwner && (
+            <p className="text-muted-foreground">
+              User: {workout.user.name || "Unknown"}
+            </p>
+          )}
+        </CardHeader>
+        <CardContent className="space-y-6">
           {workout.exercises.map((exercise) => (
-            <div key={exercise.id} className="border-t pt-6">
-              <h3 className="text-xl font-medium mb-4">{exercise.name}</h3>
-              <div className="overflow-x-auto">
-                <table className="min-w-full">
-                  <thead>
-                    <tr className="text-left text-gray-500 border-b">
-                      <th className="pb-2 pr-6">Set</th>
-                      <th className="pb-2 pr-6">Reps</th>
-                      <th className="pb-2">Weight (kg)</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {exercise.sets.map((set, index) => (
-                      <tr key={set.id} className="border-b">
-                        <td className="py-3 pr-6">{index + 1}</td>
-                        <td className="py-3 pr-6">{set.reps}</td>
-                        <td className="py-3">{set.weight || 0}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+            <Card key={exercise.id} className="overflow-hidden">
+              <CardHeader className="bg-muted/50">
+                <div className="flex items-center gap-2">
+                  <Dumbbell className="h-5 w-5" />
+                  <CardTitle className="text-xl">{exercise.name}</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="grid gap-4">
+                  {exercise.sets.map((set, index) => (
+                    <div
+                      key={set.id}
+                      className="flex items-center justify-between p-4 rounded-lg border bg-card"
+                    >
+                      <div className="font-medium">Set {index + 1}</div>
+                      <div className="flex items-center gap-6">
+                        <div className="text-center">
+                          <div className="text-sm text-muted-foreground">Reps</div>
+                          <div className="font-medium">{set.reps}</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-sm text-muted-foreground">Weight</div>
+                          <div className="font-medium">{set.weight || 0} kg</div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
           ))}
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

@@ -4,6 +4,10 @@ import { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { updateUserRole, deleteUser } from "@/app/actions/users";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface User {
   id: string;
@@ -55,116 +59,83 @@ export function UserList({ users }: { users: User[] }) {
   };
 
   return (
-    <div className="overflow-x-auto">
+    <div className="space-y-4">
       {error && (
-        <div className="p-3 mb-4 bg-red-100 text-red-700 rounded-md">
-          {error}
-        </div>
+        <Alert variant="destructive">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
       )}
       
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-50">
-          <tr>
-            <th
-              scope="col"
-              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-            >
-              User
-            </th>
-            <th
-              scope="col"
-              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-            >
-              Email
-            </th>
-            <th
-              scope="col"
-              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-            >
-              Joined
-            </th>
-            <th
-              scope="col"
-              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-            >
-              Role
-            </th>
-            <th
-              scope="col"
-              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-            >
-              Actions
-            </th>
-          </tr>
-        </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
-          {users.map((user) => (
-            <tr key={user.id} className="hover:bg-gray-50">
-              <td className="px-6 py-4 whitespace-nowrap">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0 h-10 w-10 relative">
-                    {user.image ? (
-                      <Image
-                        className="h-10 w-10 rounded-full"
-                        src={user.image}
-                        alt=""
-                        width={40}
-                        height={40}
-                      />
-                    ) : (
-                      <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
-                        <span className="text-gray-600">
-                          {user.name?.charAt(0) || "U"}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                  <div className="ml-4">
-                    <div className="text-sm font-medium text-gray-900">
-                      {user.name || "Unnamed User"}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {users.map((user) => (
+          <Card key={user.id} className="hover:shadow-md transition-shadow">
+            <CardHeader className="pb-2">
+              <div className="flex items-center space-x-4">
+                <div className="relative h-12 w-12">
+                  {user.image ? (
+                    <Image
+                      className="rounded-full"
+                      src={user.image}
+                      alt=""
+                      fill
+                      sizes="48px"
+                    />
+                  ) : (
+                    <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center">
+                      <span className="text-muted-foreground text-lg font-medium">
+                        {user.name?.charAt(0) || "U"}
+                      </span>
                     </div>
-                  </div>
+                  )}
                 </div>
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap">
-                <div className="text-sm text-gray-900">{user.email}</div>
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap">
-                <div className="text-sm text-gray-500">
-                  {new Date(user.createdAt).toLocaleDateString()}
+                <div>
+                  <CardTitle className="text-lg">
+                    {user.name || "Unnamed User"}
+                  </CardTitle>
+                  <p className="text-sm text-muted-foreground">{user.email}</p>
                 </div>
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap">
-                <span
-                  className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                    user.role === "ADMIN"
-                      ? "bg-purple-100 text-purple-800"
-                      : "bg-green-100 text-green-800"
-                  }`}
-                >
-                  {user.role}
-                </span>
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                <button
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <p className="text-sm text-muted-foreground">Role</p>
+                  <Badge variant={user.role === "ADMIN" ? "default" : "secondary"}>
+                    {user.role}
+                  </Badge>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-sm text-muted-foreground">Joined</p>
+                  <p className="text-sm">
+                    {new Date(user.createdAt).toLocaleDateString()}
+                  </p>
+                </div>
+              </div>
+              
+              <div className="flex flex-col sm:flex-row gap-2 pt-2">
+                <Button
+                  variant="outline"
+                  size="sm"
                   disabled={loading}
                   onClick={() => handleRoleToggle(user.id, user.role)}
-                  className="text-indigo-600 hover:text-indigo-900 mr-4"
+                  className="flex-1"
                 >
                   {user.role === "ADMIN" ? "Make User" : "Make Admin"}
-                </button>
-                <button
+                </Button>
+                <Button
+                  variant="destructive"
+                  size="sm"
                   disabled={loading}
                   onClick={() => handleDeleteUser(user.id)}
-                  className="text-red-600 hover:text-red-900"
+                  className="flex-1"
                 >
                   Delete
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
     </div>
   );
 } 
