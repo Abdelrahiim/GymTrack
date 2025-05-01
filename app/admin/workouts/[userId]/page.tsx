@@ -8,7 +8,7 @@ import { WorkoutList } from "@/components/admin/WorkoutList";
 export default async function UserWorkoutsPage({
   params,
 }: {
-  params: { userId: string };
+  params: Promise<{ userId: string }>;
 }) {
   const session = await auth();
   
@@ -19,10 +19,12 @@ export default async function UserWorkoutsPage({
   if (session.user.role !== "ADMIN") {
     redirect("/");
   }
+
+  const { userId } = await Promise.resolve(params);
   
   // Get user details and their workouts
   const user = await prisma.user.findUnique({
-    where: { id: params.userId },
+    where: { id: userId },
     include: {
       workouts: {
         orderBy: {

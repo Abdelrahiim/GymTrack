@@ -11,7 +11,7 @@ import Link from "next/link";
 export default async function WorkoutsPage({
   searchParams,
 }: {
-  searchParams: { search?: string; page?: string };
+  searchParams: Promise<{ search?: string; page?: string }>;
 }) {
   const session = await auth();
 
@@ -19,8 +19,10 @@ export default async function WorkoutsPage({
     redirect("/auth/signin");
   }
 
-  const page = Number(searchParams.page) || 1;
-  const search = searchParams.search || "";
+  const { search: searchParam, page: pageParam } = await Promise.resolve(searchParams);
+
+  const page = Number(pageParam) || 1;
+  const search = searchParam || "";
 
   const { workouts, total, totalPages } = await getWorkouts({
     search,
