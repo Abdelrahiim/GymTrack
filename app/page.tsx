@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { WorkoutCard } from "@/components/workout/WorkoutCard";
 import { WeeklyProgress } from "@/components/dashboard/WeeklyProgress";
-import { getWorkouts, getLastSevenDaysWorkouts } from "@/app/actions/workouts";
+import { getWorkouts, getLastSevenDaysWorkouts } from "@/actions/workouts";
 import Link from "next/link";
 import { auth } from "@/auth";
 import { Session } from "next-auth";

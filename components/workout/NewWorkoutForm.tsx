@@ -13,7 +13,7 @@ import { ExerciseForm } from "@/components/workout/ExerciseForm";
 import { WorkoutDetails } from "@/components/workout/WorkoutDetails";
 import { WorkoutActions } from "@/components/workout/WorkoutActions";
 import { Button } from "@/components/ui/button";
-import { createWorkout } from "@/app/actions/workouts";
+import { createWorkout } from "@/actions/workouts";
 
 const workoutSchema = z.object({
   date: z.string(),

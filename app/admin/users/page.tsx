@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import Link from "next/link";
 import { UserList } from "@/components/admin/UserList";
-import { getUsers } from "@/app/actions/users";
+import { getUsers } from "@/actions/users";
 
 export default async function AdminUsers() {
   const session = await auth();

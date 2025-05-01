@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { registerUser } from "@/app/actions/auth";
+import { registerUser } from "@/actions/auth";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { signUpSchema, type SignUpFormData } from "@/lib/validations/auth";
 import { zodResolver } from "@hookform/resolvers/zod";

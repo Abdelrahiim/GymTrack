@@ -51,60 +51,59 @@ export default async function WorkoutDetails({
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 space-y-6">
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" asChild>
-          <Link href="/">
-            <ArrowLeft className="h-5 w-5" />
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center space-x-4">
+          <Link href={isAdmin ? "/admin/workouts" : "/"}>
+            <Button variant="ghost" size="icon">
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
           </Link>
-        </Button>
-        <h1 className="text-3xl font-bold">Workout Details</h1>
+          <h1 className="text-3xl font-bold">Workout Details</h1>
+        </div>
+        {isAdmin && (
+          <Link href={`/admin/workouts/${workout.userId}`}>
+            <Button variant="outline">
+              View All Workouts
+            </Button>
+          </Link>
+        )}
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-2xl">
-            {format(new Date(workout.date), "EEEE, MMMM d, yyyy")}
-          </CardTitle>
-          {isAdmin && !isOwner && (
-            <p className="text-muted-foreground">
-              User: {workout.user.name || "Unknown"}
-            </p>
-          )}
+          <div className="flex items-center justify-between">
+            <CardTitle>
+              {format(new Date(workout.date), "MMMM d, yyyy")}
+            </CardTitle>
+            {isAdmin && (
+              <div className="text-sm text-muted-foreground">
+                User: {workout.user.name || "Unnamed User"}
+              </div>
+            )}
+          </div>
         </CardHeader>
-        <CardContent className="space-y-6">
-          {workout.exercises.map((exercise) => (
-            <Card key={exercise.id} className="overflow-hidden">
-              <CardHeader className="bg-muted/50">
-                <div className="flex items-center gap-2">
-                  <Dumbbell className="h-5 w-5" />
-                  <CardTitle className="text-xl">{exercise.name}</CardTitle>
-                </div>
-              </CardHeader>
-              <CardContent className="p-6">
-                <div className="grid gap-4">
-                  {exercise.sets.map((set, index) => (
+        <CardContent>
+          <div className="space-y-6">
+            {workout.exercises.map((exercise) => (
+              <div key={exercise.id} className="space-y-2">
+                <h3 className="text-lg font-medium">{exercise.name}</h3>
+                <div className="grid grid-cols-3 gap-4">
+                  {exercise.sets.map((set) => (
                     <div
                       key={set.id}
-                      className="flex items-center justify-between p-4 rounded-lg border bg-card"
+                      className="bg-muted p-3 rounded-lg text-center"
                     >
-                      <div className="font-medium">Set {index + 1}</div>
-                      <div className="flex items-center gap-6">
-                        <div className="text-center">
-                          <div className="text-sm text-muted-foreground">Reps</div>
-                          <div className="font-medium">{set.reps}</div>
-                        </div>
-                        <div className="text-center">
-                          <div className="text-sm text-muted-foreground">Weight</div>
-                          <div className="font-medium">{set.weight || 0} kg</div>
-                        </div>
+                      <div className="text-sm text-muted-foreground">Set</div>
+                      <div className="font-medium">
+                        {set.weight ? `${set.weight}kg` : "Bodyweight"} × {set.reps}
                       </div>
                     </div>
                   ))}
                 </div>
-              </CardContent>
-            </Card>
-          ))}
+              </div>
+            ))}
+          </div>
         </CardContent>
       </Card>
     </div>

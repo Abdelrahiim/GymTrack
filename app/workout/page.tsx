@@ -1,6 +1,6 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
-import { getWorkouts } from "@/app/actions/workouts";
+import { getWorkouts } from "@/actions/workouts";
 import { WorkoutCard } from "@/components/workout/WorkoutCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
