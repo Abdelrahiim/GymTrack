@@ -20,6 +20,9 @@ export default async function AdminUsers() {
   // Get all users
   const { users } = await getUsers();
   
+  // Filter out the current admin from the list
+  const filteredUsers = users.filter(user => user.id !== session.user.id);
+  
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       <div className="flex justify-between items-center mb-8">
@@ -33,7 +36,7 @@ export default async function AdminUsers() {
       </div>
       
       <div className="bg-white shadow rounded-lg overflow-hidden">
-        <UserList users={users} />
+        <UserList users={filteredUsers} />
       </div>
     </div>
   );
