@@ -115,35 +115,55 @@ AUTH_URL="http://localhost:3000" # Your base app URL
 *   `AUTH_URL`: The base URL of your application.
 *   Add credentials for any OAuth providers you configure in `auth.ts`.
 
-## Folder Structure 📁 (Simplified)
+## Folder Structure 📁
 
 ```
 gym-training/
-├── app/                  # Next.js App Router pages and layouts
-│   ├── (auth)/           # Authentication routes (signin, etc.)
-│   ├── admin/            # Admin-specific pages
-│   ├── api/              # API routes (e.g., NextAuth)
-│   ├── workout/          # Workout related pages
+├── .next/                # Next.js build output (generated)
+├── node_modules/         # Project dependencies (generated)
+├── app/                  # Next.js App Router pages, layouts, and components
+│   ├── (auth)/           # Authentication routes (signin, error, etc.) - Grouped, no layout segment
+│   ├── admin/            # Admin-specific pages (users, workouts)
+│   ├── api/              # API routes (e.g., NextAuth callback)
+│   ├── workout/          # Workout related pages (list, detail, new, edit)
 │   ├── layout.tsx        # Root layout
-│   └── page.tsx          # Main dashboard page
-├── actions/              # Server Actions for mutations/data fetching
-├── components/           # Reusable UI components
+│   ├── page.tsx          # Main dashboard page ('/')
+│   ├── globals.css       # Global styles
+│   ├── not-found.tsx     # Custom 404 page
+│   └── forbidden.tsx     # Custom 403 page
+├── actions/              # Server Actions (auth, users, workouts)
+├── components/           # Reusable UI components (mostly client-side)
 │   ├── admin/            # Admin-specific components
-│   ├── auth/             # Authentication components
-│   ├── dashboard/        # Dashboard components
-│   ├── layout/           # Layout components (Navbar, etc.)
+│   ├── auth/             # Authentication components (forms, buttons)
+│   ├── dashboard/        # Dashboard-specific components
+│   ├── layout/           # Layout components (Navbar, ThemeToggle)
 │   ├── providers/        # Context providers (Theme, Session)
-│   └── ui/               # Shadcn/UI components
-├── lib/                  # Utility functions, Prisma client, etc.
-├── prisma/               # Prisma schema and migrations
+│   ├── ui/               # Shadcn/UI base components (Button, Input, etc.)
+│   └── workout/          # Workout specific components (Card, Form, Filter)
+├── lib/                  # Utility functions, Prisma client instance, validations
+│   ├── generated/        # Prisma client output (generated)
+│   ├── validations/      # Zod schemas
+│   ├── prisma.ts         # Prisma client singleton
+│   └── utils.ts          # General utility functions
+├── prisma/               # Prisma configuration
+│   ├── migrations/       # Database migration history (generated)
 │   └── schema.prisma     # Database schema definition
-├── public/               # Static assets
-├── styles/               # Global styles
+├── public/               # Static assets (images, icons)
 ├── types/                # TypeScript type definitions
+├── .env.example          # Example environment variables
 ├── .env.local            # Local environment variables (ignored by git)
+├── .eslintrc.json        # ESLint configuration
+├── .gitignore            # Files/folders ignored by git
+├── components.json       # Shadcn/UI configuration
+├── LICENSE               # Project license file (BSD 3-Clause)
 ├── next.config.mjs       # Next.js configuration
+├── next-env.d.ts         # Next.js TypeScript declarations
 ├── package.json          # Project dependencies and scripts
-└── README.md             # This file
+├── pnpm-lock.yaml        # pnpm lockfile
+├── postcss.config.mjs    # PostCSS configuration
+├── README.md             # This file
+├── tailwind.config.ts    # Tailwind CSS configuration
+└── tsconfig.json         # TypeScript configuration
 ```
 
 ## Deployment ☁️
@@ -153,6 +173,22 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 Ensure you set up the required environment variables (especially `DATABASE_URL` and `AUTH_SECRET`) in your Vercel project settings.
 
 Check out the [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Contributing 🤝
+
+Contributions are welcome! If you'd like to contribute, please follow these steps:
+
+1.  **Fork the repository.**
+2.  **Create a new branch** for your feature or bug fix: `git checkout -b feature/your-feature-name` or `git checkout -b fix/your-bug-fix`.
+3.  **Make your changes** and commit them with clear messages.
+4.  **Push your branch** to your fork: `git push origin feature/your-feature-name`.
+5.  **Open a pull request** to the main repository.
+
+Please ensure your code adheres to the project's coding style and includes tests if applicable.
+
+## License 📜
+
+This project is licensed under the BSD 3-Clause License. See the [LICENSE](LICENSE) file for details.
 
 ---
 
