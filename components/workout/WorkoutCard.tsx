@@ -47,6 +47,17 @@ export function WorkoutCard({ workout }: WorkoutCardProps) {
 		0,
 	);
 
+	// Helper function to format weight display
+	const formatExerciseWeights = (sets: Array<{ reps: number; weight: number }>): string => {
+		const weights = sets.map(set => set.weight).filter(w => w > 0); // Filter out 0 or potentially null/undefined if type changes
+		if (weights.length === 0) return "Bodyweight";
+
+		const uniqueWeights = Array.from(new Set(weights));
+		uniqueWeights.sort((a, b) => a - b); // Sort numerically
+
+		return uniqueWeights.map(w => `${w}kg`).join(" / ");
+	};
+
 	return (
 		<Card className="hover:shadow-md transition-all duration-300">
 			<CardHeader className="pb-2">
@@ -88,11 +99,13 @@ export function WorkoutCard({ workout }: WorkoutCardProps) {
 					{workout.exercises.slice(0, 3).map((exercise) => (
 						<div
 							key={exercise.name}
-							className="flex items-center justify-between text-sm"
+							className="flex items-center justify-between text-sm gap-2"
 						>
-							<span className="font-medium">{exercise.name}</span>
-							<span className="text-muted-foreground">
-								{exercise.sets.length} sets
+							<span className="font-medium truncate pr-1">{exercise.name}</span>
+							<span className="text-muted-foreground whitespace-nowrap text-right">
+								{exercise.sets.length} {exercise.sets.length === 1 ? 'set' : 'sets'}
+								{exercise.sets.some(s => s.weight > 0) ? ', ' : ''}
+								{formatExerciseWeights(exercise.sets)}
 							</span>
 						</div>
 					))}

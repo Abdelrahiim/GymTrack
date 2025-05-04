@@ -9,8 +9,10 @@ interface Workout {
   id: string;
   createdAt: Date;
   exercises: {
+    id: string;
     name: string;
     sets: {
+      id: string;
       weight: number | null;
       reps: number;
     }[];
@@ -53,14 +55,14 @@ export function WorkoutList({ workouts }: WorkoutListProps) {
           {expandedWorkout === workout.id && (
             <CardContent>
               <div className="space-y-4">
-                {workout.exercises.map((exercise, index) => (
-                  <div key={index} className="space-y-2">
+                {workout.exercises.map((exercise) => (
+                  <div key={exercise.id} className="space-y-2">
                     <h4 className="font-medium">{exercise.name}</h4>
                     <div className="grid grid-cols-3 gap-2 text-sm text-muted-foreground">
                       {exercise.sets.map((set, setIndex) => (
-                        <div key={setIndex}>
+                        <div key={set.id}>
                           Set {setIndex + 1}:{" "}
-                          {set.weight ? set.weight + "kg" : "N/A"} × {set.reps}
+                          {set.weight ? `${set.weight}kg` : "N/A"} × {set.reps}
                         </div>
                       ))}
                     </div>
