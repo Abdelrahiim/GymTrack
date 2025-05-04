@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Suspense } from 'react';
+import { Suspense } from "react";
 import AuthErrorContent from "@/components/auth/AuthErrorContent";
 
 export default function ErrorPage() {
@@ -26,4 +26,4 @@ function LoadingFallback() {
       <p className="mt-2 text-sm text-gray-600">Checking error details...</p>
     </div>
   );
-} 
+}
