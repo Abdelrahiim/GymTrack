@@ -60,7 +60,7 @@ export default function Footer() {
 						<p>
 							© {new Date().getFullYear()} Cap M.Saleh. All rights reserved.
 						</p>
-						<p className="text-xs mt-1">Created by Cap Mohammed Saleh</p>
+						<p className="text-xs mt-1">Created by Infinity.ai</p>
 					</div>
 				</div>
 			</div>
