@@ -14,10 +14,10 @@ export function WeeklyProgress({ workouts }: { workouts: Workout[] }) {
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
 
   const workoutMap = new Map<string, boolean>();
-  workouts.forEach((workout) => {
+  for (const workout of workouts) {
     const dateStr = format(new Date(workout.date), "yyyy-MM-dd");
     workoutMap.set(dateStr, true);
-  });
+  }
 
   return (
     <Card className="w-full">
@@ -61,7 +61,7 @@ export function WeeklyProgress({ workouts }: { workouts: Workout[] }) {
                     </span>
                     {hasWorkout && (
                       <div className="absolute -bottom-1 left-1/2 -translate-x-1/2">
-                        <div className="w-1.5 h-1.5 rounded-full bg-green-500"></div>
+                        <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
                       </div>
                     )}
                   </div>
@@ -75,13 +75,13 @@ export function WeeklyProgress({ workouts }: { workouts: Workout[] }) {
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div className="flex flex-col sm:flex-row gap-4">
               <div className="flex items-center">
-                <div className="w-3 h-3 bg-primary rounded-full mr-2"></div>
+                <div className="w-3 h-3 bg-primary rounded-full mr-2" />
                 <span className="text-sm text-muted-foreground">
                   Workout Done
                 </span>
               </div>
               <div className="flex items-center">
-                <div className="w-3 h-3 bg-muted rounded-full mr-2"></div>
+                <div className="w-3 h-3 bg-muted rounded-full mr-2" />
                 <span className="text-sm text-muted-foreground">
                   No Workout
                 </span>

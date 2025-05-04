@@ -7,10 +7,11 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Control } from "react-hook-form";
+import type { Control } from "react-hook-form";
+import type { WorkoutFormValues } from "./WorkoutForm";
 
 interface WorkoutDetailsProps {
-  control: Control<any>;
+  control: Control<WorkoutFormValues>;
 }
 
 export function WorkoutDetails({ control }: WorkoutDetailsProps) {

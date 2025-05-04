@@ -2,8 +2,8 @@ import { auth } from "@/auth";
 import { redirect, notFound } from "next/navigation";
 import prisma from "@/lib/prisma";
 import { WorkoutHeader } from "@/components/workout/WorkoutHeader";
-// Import the refactored WorkoutForm
-import { WorkoutForm } from "@/components/workout/WorkoutForm";
+// Import the refactored WorkoutForm AND its expected prop type
+import { WorkoutForm, type InitialWorkoutData } from "@/components/workout/WorkoutForm";
 
 export default async function EditWorkoutPage({
   params,
@@ -37,23 +37,15 @@ export default async function EditWorkoutPage({
     notFound();
   }
 
-  // Transform data slightly if needed (e.g., ensure weight is number)
-  const transformedWorkoutData = {
-    ...workout,
-    exercises: workout.exercises.map((ex) => ({
-      ...ex,
-      sets: ex.sets.map((set) => ({
-        ...set,
-        weight: set.weight ?? 0, // Ensure weight is not null for form
-      })),
-    })),
-  };
+  // The fetched workout structure should match InitialWorkoutData 
+  // if the Prisma query is correct. We don't need the transformation.
+  const initialDataForForm: InitialWorkoutData = workout;
 
   return (
     <div className="container mx-auto px-4 py-4 sm:py-8 space-y-4 sm:space-y-6">
       <WorkoutHeader title="Edit Workout" />
-      {/* Render the WorkoutForm and pass the data as initialData */}
-      <WorkoutForm initialData={transformedWorkoutData as any} />
+      {/* Pass the correctly typed data without casting */}
+      <WorkoutForm initialData={initialDataForForm} />
     </div>
   );
 }

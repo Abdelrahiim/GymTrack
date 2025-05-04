@@ -2,8 +2,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Trash2 } from "lucide-react";
-import { UseFormRegister } from "react-hook-form";
-import { WorkoutFormValues } from "./WorkoutForm";
+import type { UseFormRegister } from "react-hook-form";
+import type { WorkoutFormValues } from "./WorkoutForm";
 
 interface SetFormProps {
   exerciseIndex: number;

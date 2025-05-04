@@ -6,6 +6,23 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import type { Prisma } from "@/lib/generated/prisma";
 
+// Define a more specific type for Workout with included relations
+type WorkoutWithDetails = Prisma.WorkoutGetPayload<{
+  include: {
+    exercises: {
+      include: {
+        sets: true;
+      };
+    };
+    user: {
+      select: {
+        name: true;
+        image: true;
+      };
+    };
+  };
+}>;
+
 type ExerciseInput = {
   name: string;
   sets: Array<{
@@ -66,7 +83,7 @@ interface GetWorkoutsParams {
 }
 
 interface GetWorkoutsResult {
-  workouts: any[];
+  workouts: WorkoutWithDetails[];
   total: number;
   totalPages: number;
 }
@@ -140,7 +157,7 @@ export async function getWorkouts({
   };
 }
 
-export async function getLastSevenDaysWorkouts(): Promise<{ workouts: any[] }> {
+export async function getLastSevenDaysWorkouts(): Promise<{ workouts: WorkoutWithDetails[] }> {
   const session = await auth();
 
   if (!session?.user) {
@@ -315,9 +332,12 @@ export async function updateWorkout(
     // revalidatePath("/admin/workouts");
 
     return { success: true };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error updating workout:", error);
-    // Rethrow specific error messages or a generic one
-    throw new Error(error.message || "Failed to update workout");
+    let errorMessage = "Failed to update workout";
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    }
+    throw new Error(errorMessage);
   }
 }
