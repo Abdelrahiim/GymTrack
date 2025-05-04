@@ -45,6 +45,7 @@ export default function Navbar() {
                 viewBox="0 0 24 24"
                 stroke="currentColor"
               >
+                <title>Cap M.Saleh Logo</title>
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -52,7 +53,7 @@ export default function Navbar() {
                   d="M13 10V3L4 14h7v7l9-11h-7z"
                 />
               </svg>
-              <span className="text-xl font-bold">GymTrack</span>
+              <span className="text-xl font-bold">Cap M.Saleh</span>
             </Link>
 
             {session && (
@@ -260,6 +261,7 @@ export default function Navbar() {
                             Settings
                           </Link> */}
                           <button
+                            type="button"
                             onClick={() =>
                               signOut({ callbackUrl: "/auth/signin" })
                             }

@@ -14,6 +14,7 @@ export default function Footer() {
               viewBox="0 0 24 24"
               stroke="currentColor"
             >
+              <title>Cap M.Saleh Logo</title>
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -21,7 +22,7 @@ export default function Footer() {
                 d="M13 10V3L4 14h7v7l9-11h-7z"
               />
             </svg>
-            <span className="font-bold text-lg">GymTrack</span>
+            <span className="font-bold text-lg">Cap M.Saleh</span>
           </div>
 
           <div className="flex items-center space-x-4 mb-4 md:mb-0">
@@ -56,7 +57,7 @@ export default function Footer() {
           </div>
 
           <div className="text-sm text-muted-foreground text-center md:text-right">
-            <p>© {new Date().getFullYear()} GymTrack. All rights reserved.</p>
+            <p>© {new Date().getFullYear()} Cap M.Saleh. All rights reserved.</p>
             <p className="text-xs mt-1">Created by Cap Mohammed Saleh</p>
           </div>
         </div>

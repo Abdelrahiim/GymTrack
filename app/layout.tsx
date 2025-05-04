@@ -9,8 +9,8 @@ import Footer from "@/components/footer";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "GymTrack - Training Progress Tracker",
-  description: "Track your gym training progress and workouts",
+  title: "Cap M.Saleh - Training Progress Tracker",
+  description: "Track your gym training progress and workouts with Cap M.Saleh",
 };
 
 export default function RootLayout({

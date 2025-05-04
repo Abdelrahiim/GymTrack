@@ -1,4 +1,4 @@
-# GymTrack - Workout Logging & Progress Tracking
+# Cap M.Saleh - Workout Logging & Progress Tracking
 
 <p align="center">
   <a href="#features">Features</a> •
@@ -13,7 +13,7 @@
 
 ## Overview
 
-GymTrack is a modern, full-stack web application designed to help users log their gym workouts, track their progress over time, and visualize their training data. It features user authentication, role-based access control (User/Admin), and a clean interface built with Next.js and Shadcn/UI. Admins have additional capabilities to manage users and view aggregated workout data.
+Cap M.Saleh is a modern, full-stack web application designed to help users log their gym workouts, track their progress over time, and visualize their training data. It features user authentication, role-based access control (User/Admin), and a clean interface built with Next.js and Shadcn/UI. Admins have additional capabilities to manage users and view aggregated workout data.
 
 ## Features ✨
 

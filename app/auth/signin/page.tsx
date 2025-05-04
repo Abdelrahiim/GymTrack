@@ -25,6 +25,7 @@ export default function AuthPage() {
                 viewBox="0 0 24 24"
                 stroke="currentColor"
               >
+                <title>Cap M.Saleh Logo</title>
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -34,7 +35,7 @@ export default function AuthPage() {
               </svg>
             </div>
           </div>
-          <CardTitle className="text-2xl text-center">GymTrack</CardTitle>
+          <CardTitle className="text-2xl text-center">Cap M.Saleh</CardTitle>
           <CardDescription className="text-center">
             Track your fitness journey
           </CardDescription>
