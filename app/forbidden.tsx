@@ -25,4 +25,4 @@ export default function Forbidden() {
       </div>
     </div>
   );
-} 
+}
