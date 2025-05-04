@@ -10,7 +10,7 @@ import { ArrowLeft, Dumbbell, Pencil } from "lucide-react";
 export default async function WorkoutDetails({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
   const session = await auth();
 
@@ -19,9 +19,10 @@ export default async function WorkoutDetails({
   }
 
   // Get workout details
+  const { id } = await Promise.resolve(params);
   const workout = await prisma.workout.findUnique({
     where: {
-      id: params.id,
+      id,
     },
     include: {
       exercises: {
@@ -67,7 +68,7 @@ export default async function WorkoutDetails({
           </Link>
         )}
         {isOwner && (
-          <Link href={`/workout/${params.id}/edit`}>
+          <Link href={`/workout/${id}/edit`}>
             <Button variant="outline">
               <Pencil className="mr-2 h-4 w-4" />
               Edit Workout

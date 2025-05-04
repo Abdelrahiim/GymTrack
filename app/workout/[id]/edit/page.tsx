@@ -8,7 +8,7 @@ import { WorkoutForm, type InitialWorkoutData } from "@/components/workout/Worko
 export default async function EditWorkoutPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
   const session = await auth();
 
@@ -17,9 +17,10 @@ export default async function EditWorkoutPage({
   }
 
   // Fetch the workout data to pass to the form
+  const { id } = await Promise.resolve(params);
   const workout = await prisma.workout.findUnique({
     where: {
-      id: params.id,
+      id,
       userId: session.user.id, // Ensure user can only edit their own workouts
     },
     include: {

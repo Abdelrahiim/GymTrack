@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Search, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { WorkoutFilter } from "@/components/dashboard/WorkoutFilter";
+import { format } from 'date-fns';
 
 interface WorkoutPageSearchParams {
   search?: string;
@@ -41,17 +42,10 @@ export default async function WorkoutsPage({
   });
 
   const buildUrlQuery = (newPage?: number): string => {
-    const params = new URLSearchParams(searchParams as any);
-    if (newPage && newPage > 1) {
-      params.set("page", String(newPage));
-    } else {
-      params.delete("page");
-    }
-    if (!currentSearch) params.delete("search");
-    else params.set("search", currentSearch);
-    if (!currentFilter) params.delete("name");
-    else params.set("name", currentFilter);
-
+    const params = new URLSearchParams();
+    if (newPage && newPage > 1) params.set("page", String(newPage));
+    if (currentSearch) params.set("search", currentSearch);
+    if (currentFilter) params.set("name", currentFilter);
     const queryString = params.toString();
     return queryString ? `?${queryString}` : "";
   };
@@ -84,7 +78,19 @@ export default async function WorkoutsPage({
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {workouts.map((workout) => (
-              <WorkoutCard key={workout.id} workout={workout} />
+              <WorkoutCard key={workout.id} workout={{
+                  id: workout.id,
+                  date: format(new Date(workout.date), 'yyyy-MM-dd'),
+                  name: workout.name,
+                  exercises: workout.exercises.map(ex => ({
+                      name: ex.name,
+                      sets: ex.sets.map(set => ({
+                          id: set.id,
+                          reps: set.reps,
+                          weight: set.weight ?? 0
+                      }))
+                  }))
+              }} />
             ))}
           </div>
 

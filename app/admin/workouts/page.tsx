@@ -62,7 +62,7 @@ interface AdminWorkoutsSearchParams {
 export default async function AdminWorkouts({
   searchParams,
 }: {
-  searchParams: AdminWorkoutsSearchParams;
+  searchParams: Promise<AdminWorkoutsSearchParams>;
 }) {
   const session = await auth();
 
@@ -74,7 +74,8 @@ export default async function AdminWorkouts({
     redirect("/");
   }
 
-  const currentFilter = searchParams.name || "";
+  const { name } = await Promise.resolve(searchParams);
+  const currentFilter = name || "";
 
   // Fetch distinct names across all users
   const distinctNames = await getAllDistinctWorkoutNames();
