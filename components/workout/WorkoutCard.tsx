@@ -6,11 +6,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight, Dumbbell } from "lucide-react";
+import { WeightUnit } from "@/lib/generated/prisma/client";
 
 interface Set {
 	id: string;
 	reps: number;
 	weight: number | null;
+	weightUnit?: WeightUnit;
 }
 
 interface Exercise {
@@ -33,8 +35,10 @@ interface WorkoutCardProps {
 		exercises: Array<{
 			name: string;
 			sets: Array<{
+				id?: string;
 				reps: number;
 				weight: number;
+				weightUnit?: WeightUnit;
 			}>;
 		}>;
 	};
@@ -47,15 +51,28 @@ export function WorkoutCard({ workout }: WorkoutCardProps) {
 		0,
 	);
 
-	// Helper function to format weight display
-	const formatExerciseWeights = (sets: Array<{ reps: number; weight: number }>): string => {
-		const weights = sets.map(set => set.weight).filter(w => w > 0); // Filter out 0 or potentially null/undefined if type changes
+	const formatExerciseWeights = (sets: Array<{ weight: number; weightUnit?: WeightUnit }>): string => {
+		const weights = sets.filter(s => s.weight > 0);
 		if (weights.length === 0) return "Bodyweight";
 
-		const uniqueWeights = Array.from(new Set(weights));
-		uniqueWeights.sort((a, b) => a - b); // Sort numerically
+		const uniqueEntries = Array.from(
+			new Map(weights.map(s => [`${s.weight}-${s.weightUnit || 'KG'}`, s])).values()
+		);
 
-		return uniqueWeights.map(w => `${w}kg`).join(" / ");
+		uniqueEntries.sort((a, b) => (a.weight || 0) - (b.weight || 0));
+
+		return uniqueEntries.map(s => {
+			const unit = s.weightUnit || WeightUnit.KG;
+			switch(unit) {
+				case WeightUnit.KG:
+				case WeightUnit.LB:
+					return `${s.weight}${unit.toLowerCase()}`;
+				case WeightUnit.PLATES:
+					return `${s.weight} Plate${s.weight === 1 ? '' : 's'}`;
+				default:
+					return `${s.weight}kg`;
+			}
+		}).join(" / ");
 	};
 
 	return (
@@ -103,9 +120,8 @@ export function WorkoutCard({ workout }: WorkoutCardProps) {
 						>
 							<span className="font-medium truncate pr-1">{exercise.name}</span>
 							<span className="text-muted-foreground whitespace-nowrap text-right">
-								{exercise.sets.length} {exercise.sets.length === 1 ? 'set' : 'sets'}
-								{exercise.sets.some(s => s.weight > 0) ? ', ' : ''}
-								{formatExerciseWeights(exercise.sets)}
+								{exercise.sets.length} {exercise.sets.length === 1 ? 'set' : 'sets'},
+								{' '}{formatExerciseWeights(exercise.sets)}
 							</span>
 						</div>
 					))}

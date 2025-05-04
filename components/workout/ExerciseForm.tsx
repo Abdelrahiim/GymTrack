@@ -82,6 +82,7 @@ export function ExerciseForm({
 							exerciseIndex={exerciseIndex}
 							setIndex={setIndex}
 							register={register}
+							control={control}
 							removeSet={removeSet}
 							canRemove={setFields.length > 1}
 						/>

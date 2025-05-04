@@ -84,6 +84,7 @@ model Workout {
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
 
+  @@index([name])
   @@map("workouts")
 }
 
@@ -99,10 +100,17 @@ model Exercise {
   @@map("exercises")
 }
 
+enum WeightUnit {
+  KG
+  LB
+  PLATES
+}
+
 model Set {
   id         String   @id @default(cuid())
   reps       Int
   weight     Float?
+  weightUnit WeightUnit @default(KG)
   exerciseId String
   exercise   Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
   createdAt  DateTime @default(now())

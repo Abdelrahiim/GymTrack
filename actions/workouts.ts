@@ -4,7 +4,7 @@ import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import type { Prisma } from "@/lib/generated/prisma";
+import type { Prisma, WeightUnit } from "@/lib/generated/prisma/client";
 
 // Define a more specific type for Workout with included relations
 type WorkoutWithDetails = Prisma.WorkoutGetPayload<{
@@ -28,6 +28,7 @@ type ExerciseInput = {
   sets: Array<{
     reps: number;
     weight: number;
+    weightUnit: WeightUnit;
   }>;
 };
 
@@ -58,6 +59,7 @@ export async function createWorkout(formData: {
               create: exercise.sets.map((set) => ({
                 reps: set.reps,
                 weight: set.weight,
+                weightUnit: set.weightUnit,
               })),
             },
           })),
@@ -265,7 +267,7 @@ export async function updateWorkout(
   formData: {
     date: string;
     name: string | null;
-    exercises: ExerciseInput[]; // Re-use type from createWorkout
+    exercises: ExerciseInput[];
   }
 ) {
   try {
@@ -315,6 +317,7 @@ export async function updateWorkout(
                 create: exercise.sets.map((set) => ({
                   reps: set.reps,
                   weight: set.weight,
+                  weightUnit: set.weightUnit,
                 })),
               },
             })),

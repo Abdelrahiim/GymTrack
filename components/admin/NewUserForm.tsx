@@ -57,8 +57,13 @@ export function NewUserForm() {
       await createUser(data);
       router.push("/admin/users");
       router.refresh(); // Refresh the user list page
-    } catch (error: any) {
-      setError(error.message || "Failed to create user");
+    } catch (error: unknown) {
+      // Type check before accessing message
+      let errorMessage = "Failed to create user";
+      if (error instanceof Error) {
+          errorMessage = error.message;
+      }
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -158,7 +163,7 @@ export function NewUserForm() {
             >
               {loading ? (
                 <div className="flex items-center">
-                  <div className="w-4 h-4 mr-2 border-t-2 border-b-2 border-white rounded-full animate-spin"></div>
+                  <div className="w-4 h-4 mr-2 border-t-2 border-b-2 border-white rounded-full animate-spin"/>
                   Creating...
                 </div>
               ) : (
