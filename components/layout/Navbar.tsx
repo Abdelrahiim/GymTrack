@@ -71,15 +71,15 @@ export default function Navbar() {
                 </Link>
                 {session.user.role === "ADMIN" && (
                   <>
-                    <Link
-                      href="/admin/users"
-                      className={cn(
-                        "px-4 py-2 rounded-md text-sm font-medium",
-                        "text-muted-foreground hover:text-foreground transition-colors"
-                      )}
-                    >
-                      Manage Users
-                    </Link>
+                  <Link
+                    href="/admin/users"
+                    className={cn(
+                      "px-4 py-2 rounded-md text-sm font-medium",
+                      "text-muted-foreground hover:text-foreground transition-colors"
+                    )}
+                  >
+                    Manage Users
+                  </Link>
                     <Link
                       href="/admin/workouts"
                       className={cn(

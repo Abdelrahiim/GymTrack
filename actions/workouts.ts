@@ -16,6 +16,7 @@ type ExerciseInput = {
 
 export async function createWorkout(formData: {
   date: string;
+  name: string | null;
   exercises: ExerciseInput[];
 }) {
   try {
@@ -25,12 +26,13 @@ export async function createWorkout(formData: {
       throw new Error("Unauthorized");
     }
 
-    const { date, exercises } = formData;
+    const { date, name, exercises } = formData;
 
     // Create the workout
     const workout = await prisma.workout.create({
       data: {
         date: new Date(date),
+        name: name,
         userId: session.user.id,
         exercises: {
           create: exercises.map((exercise) => ({
@@ -60,6 +62,7 @@ interface GetWorkoutsParams {
   limit?: number;
   startDate?: string;
   endDate?: string;
+  name?: string;
 }
 
 interface GetWorkoutsResult {
@@ -72,6 +75,7 @@ export async function getWorkouts({
   search = "",
   page = 1,
   limit = 10,
+  name = "",
 }: GetWorkoutsParams = {}): Promise<GetWorkoutsResult> {
   const session = await auth();
 
@@ -92,6 +96,12 @@ export async function getWorkouts({
             mode: "insensitive",
           },
         },
+      },
+    }),
+    ...(name && {
+      name: {
+        equals: name,
+        mode: "insensitive",
       },
     }),
   };
@@ -170,4 +180,60 @@ export async function getLastSevenDaysWorkouts(): Promise<{ workouts: any[] }> {
   });
 
   return { workouts };
+}
+
+// New function to get distinct workout names for the logged-in user
+export async function getDistinctWorkoutNames(): Promise<string[]> {
+  const session = await auth();
+
+  if (!session?.user?.id) {
+    return [];
+  }
+
+  const distinctNames = await prisma.workout.findMany({
+    where: {
+      userId: session.user.id,
+      name: {
+        not: null, // Only include workouts that have a name
+      },
+    },
+    select: {
+      name: true,
+    },
+    distinct: ["name"],
+    orderBy: {
+      name: 'asc'
+    }
+  });
+
+  // Ensure names are not null and return the array of strings
+  return distinctNames.map(item => item.name).filter(name => name !== null) as string[];
+}
+
+// New function to get distinct workout names across ALL users (for admin)
+export async function getAllDistinctWorkoutNames(): Promise<string[]> {
+    const session = await auth();
+    
+    // Ensure user is admin
+    if (!session?.user || session.user.role !== "ADMIN") {
+        return [];
+    }
+    
+    const distinctNames = await prisma.workout.findMany({
+        where: {
+            name: {
+                not: null, // Only include workouts that have a name
+            },
+        },
+        select: {
+            name: true,
+        },
+        distinct: ["name"],
+        orderBy: {
+            name: 'asc'
+        }
+    });
+    
+    // Ensure names are not null and return the array of strings
+    return distinctNames.map(item => item.name).filter(name => name !== null) as string[];
 }

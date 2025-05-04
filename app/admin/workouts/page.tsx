@@ -13,11 +13,15 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Dumbbell } from "lucide-react";
+import { getAllDistinctWorkoutNames } from "@/actions/workouts";
+import { WorkoutFilter } from "@/components/dashboard/WorkoutFilter";
+import type { Prisma } from "@/lib/generated/prisma";
 
 // Define types based on Prisma schema and query
 type WorkoutWithUser = {
   id: string;
   date: Date;
+  name: string | null;
   user: {
     id: string;
     name: string | null;
@@ -50,7 +54,12 @@ const getUserInitials = (name: string | null | undefined): string => {
     .toUpperCase();
 };
 
-export default async function AdminWorkouts() {
+// Define search params type for admin page
+interface AdminWorkoutsSearchParams {
+  name?: string;
+}
+
+export default async function AdminWorkouts({ searchParams }: { searchParams: AdminWorkoutsSearchParams }) {
   const session = await auth();
 
   if (!session) {
@@ -61,13 +70,28 @@ export default async function AdminWorkouts() {
     redirect("/");
   }
 
-  // Fetch all workouts EXCLUDING the admin's own, ordered by date
-  const workouts = await prisma.workout.findMany({
-    where: {
-      userId: {
-        not: session.user.id, // Exclude workouts from the current admin
-      },
+  const currentFilter = searchParams.name || "";
+
+  // Fetch distinct names across all users
+  const distinctNames = await getAllDistinctWorkoutNames();
+
+  // Build the where clause for filtering
+  const whereClause: Prisma.WorkoutWhereInput = {
+    userId: {
+      not: session.user.id, // Exclude workouts from the current admin
     },
+    // Add name filtering logic
+    ...(currentFilter && {
+      name: {
+        equals: currentFilter,
+        mode: "insensitive",
+      },
+    }),
+  };
+
+  // Fetch filtered workouts
+  const workouts = await prisma.workout.findMany({
+    where: whereClause,
     include: {
       user: {
         select: {
@@ -85,23 +109,31 @@ export default async function AdminWorkouts() {
     },
   });
 
-  const groupedWorkouts: Record<string, WorkoutWithUser[]> = groupWorkoutsByDate(workouts as WorkoutWithUser[]); // Cast to defined type
-  const sortedDates = Object.keys(groupedWorkouts).sort((a, b) => b.localeCompare(a)); // Sort dates descending
+  // Group filtered workouts
+  const groupedWorkouts: Record<string, WorkoutWithUser[]> = groupWorkoutsByDate(workouts as WorkoutWithUser[]);
+  const sortedDates = Object.keys(groupedWorkouts).sort((a, b) => b.localeCompare(a));
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">All User Workouts</h1>
-        <Link
-          href="/workout/new"
-          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-        >
-          Log New Workout
-        </Link>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+        <h1 className="text-3xl font-bold">
+        pnpm biome init         {currentFilter ? `${currentFilter} Workouts` : "All User Workouts"}
+        </h1>
+        <div className="flex items-center gap-2">
+          <WorkoutFilter distinctNames={distinctNames} currentFilter={currentFilter} />
+          <Link
+            href="/workout/new"
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 whitespace-nowrap"
+          >
+            Log New Workout
+          </Link>
+        </div>
       </div>
 
       {workouts.length === 0 ? (
-         <p className="text-center text-muted-foreground mt-10">No workouts have been logged yet.</p>
+         <p className="text-center text-muted-foreground mt-10">
+           {currentFilter ? `No '${currentFilter}' workouts found from users.` : "No workouts have been logged by users yet."}
+         </p>
       ) : (
         <Accordion type="multiple" className="w-full space-y-4">
           {sortedDates.map((dateStr) => (
@@ -120,7 +152,12 @@ export default async function AdminWorkouts() {
                                 <AvatarImage src={workout.user.image ?? undefined} alt={workout.user.name ?? 'User'} />
                                 <AvatarFallback>{getUserInitials(workout.user.name)}</AvatarFallback>
                               </Avatar>
-                              <span className="font-medium">{workout.user.name || "Unnamed User"}</span>
+                              <div>
+                                <span className="font-medium">{workout.user.name || "Unnamed User"}</span>
+                                {workout.name && (
+                                    <p className="text-xs text-muted-foreground">{workout.name}</p>
+                                )}
+                              </div>
                             </div>
                             <Link href={`/workout/${workout.id}`}>
                                 <Button variant="outline" size="sm">View Details</Button>

@@ -43,39 +43,34 @@ export default async function Home() {
     redirect("/auth/signin");
   }
 
-  // Get user's recent workouts
   const { workouts: recentWorkouts } = await getLastSevenDaysWorkouts();
 
-  // Calculate the days in the week
-  const daysInWeek = 7;
-
-  // Get some basic stats
   const totalWorkouts = recentWorkouts.length;
   const totalExercises = recentWorkouts.reduce(
-    (count: number, workout: Workout) => count + workout.exercises.length,
+    (count: number, workout: any) => count + workout.exercises.length,
     0
   );
   const totalSets = recentWorkouts.reduce(
-    (count: number, workout: Workout) =>
+    (count: number, workout: any) =>
       count +
       workout.exercises.reduce(
-        (sets: number, exercise: Exercise) => sets + exercise.sets.length,
+        (sets: number, exercise: any) => sets + exercise.sets.length,
         0
       ),
     0
   );
 
-  // Transform workouts to match WorkoutCard props
-  const transformedWorkouts = recentWorkouts.map((workout: Workout) => ({
+  const transformedWorkouts = recentWorkouts.map((workout: any) => ({
     id: workout.id,
     date: workout.date.toISOString(),
-    exercises: workout.exercises.map((exercise: Exercise) => ({
+    name: workout.name,
+    exercises: workout.exercises.map((exercise: any) => ({
       name: exercise.name,
-      sets: exercise.sets.map((set: Set) => ({
+      sets: exercise.sets.map((set: any) => ({
         reps: set.reps,
-        weight: set.weight || 0
-      }))
-    }))
+        weight: set.weight || 0,
+      })),
+    })),
   }));
 
   return (
@@ -108,16 +103,14 @@ export default async function Home() {
 
           <section>
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold">
-                Recent Workouts
-              </h2>
+              <h2 className="text-2xl font-bold">Recent Workouts</h2>
               {recentWorkouts.length > 0 && (
-                <Link
-                  href="/workout"
-                  className="text-primary hover:text-primary/80 font-medium"
-                >
-                  View all →
-                </Link>
+                 <Link
+                   href="/workout"
+                   className="text-primary hover:text-primary/80 font-medium"
+                 >
+                   View all →
+                 </Link>
               )}
             </div>
 
@@ -129,21 +122,18 @@ export default async function Home() {
               </div>
             ) : (
               <Card>
-                <CardContent className="p-8 text-center">
-                  <Dumbbell className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-                  <p className="text-muted-foreground text-lg mb-4">
-                    No workouts recorded yet
-                  </p>
-                  <p className="text-muted-foreground mb-6">
-                    Start by logging your first workout session
-                  </p>
-                  <Button asChild>
-                    <Link href="/workout/new">
-                      Log Your First Workout
-                    </Link>
-                  </Button>
-                </CardContent>
-              </Card>
+                 <CardContent className="p-8 text-center">
+                   <Dumbbell className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
+                   <p className="text-muted-foreground text-lg mb-4">
+                     No workouts recorded yet.
+                   </p>
+                   <Button asChild>
+                     <Link href="/workout/new">
+                       Log Your First Workout
+                     </Link>
+                   </Button>
+                 </CardContent>
+               </Card>
             )}
           </section>
         </div>
@@ -155,51 +145,51 @@ export default async function Home() {
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="bg-background/50 backdrop-blur-sm rounded-lg p-4">
-                <p className="text-sm font-medium">
-                  Workouts This Week
-                </p>
-                <div className="flex items-end justify-between">
-                  <p className="text-4xl font-extrabold mt-1">
-                    {recentWorkouts.length}
-                  </p>
-                  <p className="text-muted-foreground">of {daysInWeek} days</p>
-                </div>
-                <Progress 
-                  value={Math.min(100, (recentWorkouts.length / 7) * 100)} 
-                  className="mt-2"
-                />
-              </div>
+                 <p className="text-sm font-medium">
+                   Workouts This Week
+                 </p>
+                 <div className="flex items-end justify-between">
+                   <p className="text-4xl font-extrabold mt-1">
+                     {recentWorkouts.length}
+                   </p>
+                   <p className="text-muted-foreground">of 7 days</p>
+                 </div>
+                 <Progress
+                   value={Math.min(100, (recentWorkouts.length / 7) * 100)}
+                   className="mt-2"
+                 />
+               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <Card className="bg-background/50 backdrop-blur-sm border-none">
-                  <CardContent className="p-4">
-                    <p className="text-sm font-medium">
-                      Total Workouts
-                    </p>
-                    <p className="text-3xl font-bold mt-1">{totalWorkouts}</p>
-                  </CardContent>
-                </Card>
+                   <CardContent className="p-4">
+                     <p className="text-sm font-medium">
+                       Total Workouts
+                     </p>
+                     <p className="text-3xl font-bold mt-1">{totalWorkouts}</p>
+                   </CardContent>
+                 </Card>
 
                 <Card className="bg-background/50 backdrop-blur-sm border-none">
-                  <CardContent className="p-4">
-                    <p className="text-sm font-medium">
-                      Total Exercises
-                    </p>
-                    <p className="text-3xl font-bold mt-1">{totalExercises}</p>
-                  </CardContent>
-                </Card>
+                   <CardContent className="p-4">
+                     <p className="text-sm font-medium">
+                       Total Exercises
+                     </p>
+                     <p className="text-3xl font-bold mt-1">{totalExercises}</p>
+                   </CardContent>
+                 </Card>
 
                 <Card className="col-span-2 bg-background/50 backdrop-blur-sm border-none">
-                  <CardContent className="p-4">
-                    <p className="text-sm font-medium">
-                      Total Sets
-                    </p>
-                    <p className="text-3xl font-bold mt-1">{totalSets}</p>
-                  </CardContent>
-                </Card>
-              </div>
-            </CardContent>
-          </Card>
+                   <CardContent className="p-4">
+                     <p className="text-sm font-medium">
+                       Total Sets
+                     </p>
+                     <p className="text-3xl font-bold mt-1">{totalSets}</p>
+                   </CardContent>
+                 </Card>
+               </div>
+             </CardContent>
+           </Card>
 
           <Card>
             <CardHeader>

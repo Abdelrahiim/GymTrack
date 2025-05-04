@@ -72,9 +72,15 @@ export default async function WorkoutDetails({
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle>
-              {format(new Date(workout.date), "MMMM d, yyyy")}
-            </CardTitle>
+            <div>
+              {/* Display workout name if available */}
+              {workout.name && (
+                <CardTitle className="text-2xl mb-1">{workout.name}</CardTitle>
+              )}
+              <p className="text-sm text-muted-foreground">
+                 {format(new Date(workout.date), "EEEE, MMMM d, yyyy")}
+              </p>
+            </div>
             {isAdmin && (
               <div className="text-sm text-muted-foreground">
                 User: {workout.user.name || "Unnamed User"}

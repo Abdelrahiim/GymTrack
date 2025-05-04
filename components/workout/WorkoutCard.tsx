@@ -29,6 +29,7 @@ interface WorkoutCardProps {
   workout: {
     id: string;
     date: string;
+    name: string | null;
     exercises: Array<{
       name: string;
       sets: Array<{
@@ -51,11 +52,11 @@ export function WorkoutCard({ workout }: WorkoutCardProps) {
       <CardHeader className="pb-2">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
           <div>
-            <CardTitle className="text-lg sm:text-xl">
-              {format(new Date(workout.date), "EEEE, MMMM d")}
-            </CardTitle>
+            {workout.name && (
+              <CardTitle className="text-xl mb-1">{workout.name}</CardTitle>
+            )}
             <p className="text-sm text-muted-foreground">
-              {format(new Date(workout.date), "yyyy")}
+              {format(new Date(workout.date), "EEEE, MMMM d, yyyy")}
             </p>
           </div>
           <Button asChild variant="default" size="sm" className="w-full sm:w-auto">

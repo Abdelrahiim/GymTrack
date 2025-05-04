@@ -1,17 +1,24 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
-import { getWorkouts } from "@/actions/workouts";
+import { getWorkouts, getDistinctWorkoutNames } from "@/actions/workouts";
 import { WorkoutCard } from "@/components/workout/WorkoutCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Search, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
+import { WorkoutFilter } from "@/components/dashboard/WorkoutFilter";
+
+interface WorkoutPageSearchParams {
+  search?: string;
+  page?: string;
+  name?: string;
+}
 
 export default async function WorkoutsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ search?: string; page?: string }>;
+  searchParams: WorkoutPageSearchParams;
 }) {
   const session = await auth();
 
@@ -19,22 +26,40 @@ export default async function WorkoutsPage({
     redirect("/auth/signin");
   }
 
-  const { search: searchParam, page: pageParam } = await Promise.resolve(searchParams);
+  const { search, page: pageParam, name } = searchParams;
+  const currentPage = Number(pageParam) || 1;
+  const currentSearch = search || "";
+  const currentFilter = name || "";
 
-  const page = Number(pageParam) || 1;
-  const search = searchParam || "";
+  const distinctNames = await getDistinctWorkoutNames();
 
   const { workouts, total, totalPages } = await getWorkouts({
-    search,
-    page,
+    search: currentSearch,
+    page: currentPage,
     limit: 10,
+    name: currentFilter,
   });
+
+  const buildUrlQuery = (newPage?: number): string => {
+    const params = new URLSearchParams(searchParams as any);
+    if (newPage && newPage > 1) {
+      params.set("page", String(newPage));
+    } else {
+      params.delete("page");
+    }
+    if (!currentSearch) params.delete("search"); else params.set("search", currentSearch);
+    if (!currentFilter) params.delete("name"); else params.set("name", currentFilter);
+
+    const queryString = params.toString();
+    return queryString ? `?${queryString}` : "";
+  };
 
   return (
     <div className="container mx-auto py-6 space-y-6">
       <Card>
-        <CardHeader>
-          <CardTitle>All Workouts</CardTitle>
+        <CardHeader className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <CardTitle>{currentFilter ? `${currentFilter} Workouts` : "All Workouts"}</CardTitle>
+          <WorkoutFilter distinctNames={distinctNames} currentFilter={currentFilter} />
         </CardHeader>
         <CardContent>
           <form className="flex flex-col sm:flex-row gap-4 mb-6">
@@ -43,7 +68,7 @@ export default async function WorkoutsPage({
               <Input
                 placeholder="Search workouts..."
                 className="pl-9"
-                defaultValue={search}
+                defaultValue={currentSearch}
                 name="search"
               />
             </div>
@@ -58,7 +83,7 @@ export default async function WorkoutsPage({
 
           {workouts.length === 0 && (
             <div className="text-center py-8 text-muted-foreground">
-              No workouts found
+              {currentFilter ? `No '${currentFilter}' workouts found` : "No workouts found"}
             </div>
           )}
 
@@ -67,31 +92,27 @@ export default async function WorkoutsPage({
               <Button
                 variant="outline"
                 size="sm"
-                disabled={page <= 1}
+                disabled={currentPage <= 1}
                 asChild
               >
                 <Link
-                  href={`/workout?page=${page - 1}${
-                    search ? `&search=${search}` : ""
-                  }`}
+                  href={`/workout${buildUrlQuery(currentPage - 1)}`}
                 >
                   <ChevronLeft className="h-4 w-4 mr-2" />
                   Previous
                 </Link>
               </Button>
               <span className="text-sm text-muted-foreground">
-                Page {page} of {totalPages}
+                Page {currentPage} of {totalPages}
               </span>
               <Button
                 variant="outline"
                 size="sm"
-                disabled={page >= totalPages}
+                disabled={currentPage >= totalPages}
                 asChild
               >
                 <Link
-                  href={`/workout?page=${page + 1}${
-                    search ? `&search=${search}` : ""
-                  }`}
+                  href={`/workout${buildUrlQuery(currentPage + 1)}`}
                 >
                   Next
                   <ChevronRight className="h-4 w-4 ml-2" />

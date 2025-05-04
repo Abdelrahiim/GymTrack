@@ -14,9 +14,12 @@ import { WorkoutDetails } from "@/components/workout/WorkoutDetails";
 import { WorkoutActions } from "@/components/workout/WorkoutActions";
 import { Button } from "@/components/ui/button";
 import { createWorkout } from "@/actions/workouts";
+import { Input } from "@/components/ui/input";
+import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 
 const workoutSchema = z.object({
   date: z.string(),
+  name: z.string().optional(),
   exercises: z.array(
     z.object({
       name: z.string().min(1, { message: "Exercise name is required" }),
@@ -52,6 +55,7 @@ export function NewWorkoutForm() {
     resolver: zodResolver(workoutSchema),
     defaultValues: {
       date: new Date().toISOString().substring(0, 10),
+      name: "",
       exercises: [{ name: "", sets: [{ reps: 0, weight: 0 }] }],
     },
   });
@@ -122,6 +126,7 @@ export function NewWorkoutForm() {
     try {
       await createWorkout({
         date: data.date,
+        name: data.name || null,
         exercises: data.exercises,
       });
 
@@ -146,6 +151,20 @@ export function NewWorkoutForm() {
         )}
 
         <WorkoutDetails control={form.control} />
+
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Workout Name (Optional)</FormLabel>
+              <FormControl>
+                <Input placeholder="e.g., Chest Day, Leg Workout" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">

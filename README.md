@@ -83,9 +83,9 @@ Follow these instructions to set up the project locally for development.
         ```
 
 5.  **Run the development server:**
-    ```bash
-    pnpm dev
-    ```
+```bash
+pnpm dev
+```
 
     The application should now be running at [http://localhost:3000](http://localhost:3000).
 
