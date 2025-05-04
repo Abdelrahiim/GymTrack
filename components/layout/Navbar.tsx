@@ -13,7 +13,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { Menu, Moon, Sun } from "lucide-react";
 import { useTheme } from "@/components/providers/ThemeProvider";
 import { cn } from "@/lib/utils";
@@ -71,15 +77,15 @@ export default function Navbar() {
                 </Link>
                 {session.user.role === "ADMIN" && (
                   <>
-                  <Link
-                    href="/admin/users"
-                    className={cn(
-                      "px-4 py-2 rounded-md text-sm font-medium",
-                      "text-muted-foreground hover:text-foreground transition-colors"
-                    )}
-                  >
-                    Manage Users
-                  </Link>
+                    <Link
+                      href="/admin/users"
+                      className={cn(
+                        "px-4 py-2 rounded-md text-sm font-medium",
+                        "text-muted-foreground hover:text-foreground transition-colors"
+                      )}
+                    >
+                      Manage Users
+                    </Link>
                     <Link
                       href="/admin/workouts"
                       className={cn(
@@ -96,11 +102,7 @@ export default function Navbar() {
           </div>
 
           <div className="ml-3 relative hidden md:flex items-center space-x-4">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleTheme}
-            >
+            <Button variant="ghost" size="icon" onClick={toggleTheme}>
               {theme === "dark" ? (
                 <Sun className="h-5 w-5" />
               ) : (
@@ -174,11 +176,7 @@ export default function Navbar() {
             </Button>
             <Sheet>
               <SheetTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-9 w-9"
-                >
+                <Button variant="ghost" size="icon" className="h-9 w-9">
                   <Menu className="h-5 w-5" />
                 </Button>
               </SheetTrigger>
@@ -205,8 +203,12 @@ export default function Navbar() {
                             </div>
                           )}
                           <div>
-                            <p className="text-sm font-medium">{session.user.name}</p>
-                            <p className="text-xs text-muted-foreground truncate">{session.user.email}</p>
+                            <p className="text-sm font-medium">
+                              {session.user.name}
+                            </p>
+                            <p className="text-xs text-muted-foreground truncate">
+                              {session.user.email}
+                            </p>
                           </div>
                         </div>
                         <div className="space-y-1">
@@ -258,7 +260,9 @@ export default function Navbar() {
                             Settings
                           </Link>
                           <button
-                            onClick={() => signOut({ callbackUrl: "/auth/signin" })}
+                            onClick={() =>
+                              signOut({ callbackUrl: "/auth/signin" })
+                            }
                             className={cn(
                               "block w-full px-4 py-2 text-sm text-left",
                               "text-destructive hover:bg-destructive/10 transition-colors"

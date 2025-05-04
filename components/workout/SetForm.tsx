@@ -27,25 +27,41 @@ export function SetForm({
           <div className="font-medium">Set {setIndex + 1}</div>
           <div className="flex items-center gap-4">
             <div className="flex flex-col gap-1">
-              <label htmlFor={`exercises.${exerciseIndex}.sets.${setIndex}.reps`} className="text-sm text-muted-foreground">Reps</label>
+              <label
+                htmlFor={`exercises.${exerciseIndex}.sets.${setIndex}.reps`}
+                className="text-sm text-muted-foreground"
+              >
+                Reps
+              </label>
               <Input
                 id={`exercises.${exerciseIndex}.sets.${setIndex}.reps`}
                 type="number"
                 min="0"
                 placeholder="0"
-                {...register(`exercises.${exerciseIndex}.sets.${setIndex}.reps`, { valueAsNumber: true })}
+                {...register(
+                  `exercises.${exerciseIndex}.sets.${setIndex}.reps`,
+                  { valueAsNumber: true }
+                )}
                 className="w-20"
               />
             </div>
             <div className="flex flex-col gap-1">
-              <label htmlFor={`exercises.${exerciseIndex}.sets.${setIndex}.weight`} className="text-sm text-muted-foreground">Weight (kg)</label>
+              <label
+                htmlFor={`exercises.${exerciseIndex}.sets.${setIndex}.weight`}
+                className="text-sm text-muted-foreground"
+              >
+                Weight (kg)
+              </label>
               <Input
                 id={`exercises.${exerciseIndex}.sets.${setIndex}.weight`}
                 type="number"
                 min="0"
                 step="0.5"
                 placeholder="0"
-                {...register(`exercises.${exerciseIndex}.sets.${setIndex}.weight`, { valueAsNumber: true })}
+                {...register(
+                  `exercises.${exerciseIndex}.sets.${setIndex}.weight`,
+                  { valueAsNumber: true }
+                )}
                 className="w-20"
               />
             </div>
@@ -65,4 +81,4 @@ export function SetForm({
       </CardContent>
     </Card>
   );
-} 
+}

@@ -65,7 +65,7 @@ export function UserList({ users }: { users: User[] }) {
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {users.map((user) => (
           <Card key={user.id} className="hover:shadow-md transition-shadow">
@@ -100,7 +100,9 @@ export function UserList({ users }: { users: User[] }) {
               <div className="flex items-center justify-between">
                 <div className="space-y-1">
                   <p className="text-sm text-muted-foreground">Role</p>
-                  <Badge variant={user.role === "ADMIN" ? "default" : "secondary"}>
+                  <Badge
+                    variant={user.role === "ADMIN" ? "default" : "secondary"}
+                  >
                     {user.role}
                   </Badge>
                 </div>
@@ -111,7 +113,7 @@ export function UserList({ users }: { users: User[] }) {
                   </p>
                 </div>
               </div>
-              
+
               <div className="flex flex-col sm:flex-row gap-2 pt-2">
                 <Button
                   variant="outline"
@@ -138,4 +140,4 @@ export function UserList({ users }: { users: User[] }) {
       </div>
     </div>
   );
-} 
+}

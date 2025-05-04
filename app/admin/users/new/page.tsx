@@ -8,16 +8,29 @@ import { createUser } from "@/actions/users";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 // Define schema for user creation validation
 const userSchema = z.object({
   name: z.string().min(1, { message: "Name is required" }),
   email: z.string().email({ message: "Valid email is required" }),
-  role: z.enum(["ADMIN", "USER"])
+  role: z.enum(["ADMIN", "USER"]),
 });
 
 type UserFormValues = z.infer<typeof userSchema>;
@@ -93,7 +106,9 @@ export default function NewUser() {
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-sm font-medium text-gray-700">Name</FormLabel>
+                  <FormLabel className="text-sm font-medium text-gray-700">
+                    Name
+                  </FormLabel>
                   <FormControl>
                     <Input
                       placeholder="Enter user's name"
@@ -111,7 +126,9 @@ export default function NewUser() {
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-sm font-medium text-gray-700">Email</FormLabel>
+                  <FormLabel className="text-sm font-medium text-gray-700">
+                    Email
+                  </FormLabel>
                   <FormControl>
                     <Input
                       type="email"
@@ -130,7 +147,9 @@ export default function NewUser() {
               name="role"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-sm font-medium text-gray-700">Role</FormLabel>
+                  <FormLabel className="text-sm font-medium text-gray-700">
+                    Role
+                  </FormLabel>
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value}
@@ -179,4 +198,4 @@ export default function NewUser() {
       </div>
     </div>
   );
-} 
+}

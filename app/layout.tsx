@@ -20,17 +20,17 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={cn(
-        inter.className,
-        "min-h-screen bg-background text-foreground"
-      )}>
+      <body
+        className={cn(
+          inter.className,
+          "min-h-screen bg-background text-foreground"
+        )}
+      >
         <ThemeProvider>
           <SessionProvider>
             <div className="min-h-screen flex flex-col">
               <Navbar />
-              <main className="flex-grow">
-                {children}
-              </main>
+              <main className="flex-grow">{children}</main>
               <Footer />
             </div>
           </SessionProvider>

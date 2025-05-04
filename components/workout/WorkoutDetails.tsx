@@ -36,4 +36,4 @@ export function WorkoutDetails({ control }: WorkoutDetailsProps) {
       </CardContent>
     </Card>
   );
-} 
+}

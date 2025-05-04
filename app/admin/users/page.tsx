@@ -7,22 +7,22 @@ import { getUsers } from "@/actions/users";
 
 export default async function AdminUsers() {
   const session = await auth();
-  
+
   // Check if user is authenticated and is an admin
   if (!session) {
     redirect("/auth/signin");
   }
-  
+
   if (session.user.role !== "ADMIN") {
     redirect("/");
   }
-  
+
   // Get all users
   const { users } = await getUsers();
-  
+
   // Filter out the current admin from the list
-  const filteredUsers = users.filter(user => user.id !== session.user.id);
-  
+  const filteredUsers = users.filter((user) => user.id !== session.user.id);
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       <div className="flex justify-between items-center mb-8">
@@ -34,10 +34,10 @@ export default async function AdminUsers() {
           Add New User
         </Link>
       </div>
-      
+
       <div className="bg-white shadow rounded-lg overflow-hidden">
         <UserList users={filteredUsers} />
       </div>
     </div>
   );
-} 
+}

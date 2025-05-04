@@ -17,7 +17,7 @@ export function GoogleSignIn({ isSignUp = false }: GoogleSignInProps) {
   const handleGoogleSignIn = async () => {
     try {
       setIsLoading(true);
-      await signIn("google", { 
+      await signIn("google", {
         callbackUrl: "/api/auth/callback/google",
         redirect: true,
       });
@@ -35,14 +35,14 @@ export function GoogleSignIn({ isSignUp = false }: GoogleSignInProps) {
       className="w-full"
       disabled={isLoading}
     >
-      <Image 
-        src="/google-logo.svg" 
-        alt="Google Logo" 
-        width={20} 
+      <Image
+        src="/google-logo.svg"
+        alt="Google Logo"
+        width={20}
         height={20}
         className="mr-2"
       />
       {isSignUp ? "Sign up with Google" : "Sign in with Google"}
     </Button>
   );
-} 
+}

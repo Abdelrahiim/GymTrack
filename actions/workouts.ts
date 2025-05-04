@@ -202,40 +202,44 @@ export async function getDistinctWorkoutNames(): Promise<string[]> {
     },
     distinct: ["name"],
     orderBy: {
-      name: 'asc'
-    }
+      name: "asc",
+    },
   });
 
   // Ensure names are not null and return the array of strings
-  return distinctNames.map(item => item.name).filter(name => name !== null) as string[];
+  return distinctNames
+    .map((item) => item.name)
+    .filter((name) => name !== null) as string[];
 }
 
 // New function to get distinct workout names across ALL users (for admin)
 export async function getAllDistinctWorkoutNames(): Promise<string[]> {
-    const session = await auth();
-    
-    // Ensure user is admin
-    if (!session?.user || session.user.role !== "ADMIN") {
-        return [];
-    }
-    
-    const distinctNames = await prisma.workout.findMany({
-        where: {
-            name: {
-                not: null, // Only include workouts that have a name
-            },
-        },
-        select: {
-            name: true,
-        },
-        distinct: ["name"],
-        orderBy: {
-            name: 'asc'
-        }
-    });
-    
-    // Ensure names are not null and return the array of strings
-    return distinctNames.map(item => item.name).filter(name => name !== null) as string[];
+  const session = await auth();
+
+  // Ensure user is admin
+  if (!session?.user || session.user.role !== "ADMIN") {
+    return [];
+  }
+
+  const distinctNames = await prisma.workout.findMany({
+    where: {
+      name: {
+        not: null, // Only include workouts that have a name
+      },
+    },
+    select: {
+      name: true,
+    },
+    distinct: ["name"],
+    orderBy: {
+      name: "asc",
+    },
+  });
+
+  // Ensure names are not null and return the array of strings
+  return distinctNames
+    .map((item) => item.name)
+    .filter((name) => name !== null) as string[];
 }
 
 // --- UPDATE WORKOUT ACTION ---
@@ -264,7 +268,9 @@ export async function updateWorkout(
     });
 
     if (!existingWorkout) {
-      throw new Error("Workout not found or you do not have permission to edit it.");
+      throw new Error(
+        "Workout not found or you do not have permission to edit it."
+      );
     }
 
     // Perform the update within a transaction
@@ -309,7 +315,6 @@ export async function updateWorkout(
     // revalidatePath("/admin/workouts");
 
     return { success: true };
-
   } catch (error: any) {
     console.error("Error updating workout:", error);
     // Rethrow specific error messages or a generic one

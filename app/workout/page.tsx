@@ -47,8 +47,10 @@ export default async function WorkoutsPage({
     } else {
       params.delete("page");
     }
-    if (!currentSearch) params.delete("search"); else params.set("search", currentSearch);
-    if (!currentFilter) params.delete("name"); else params.set("name", currentFilter);
+    if (!currentSearch) params.delete("search");
+    else params.set("search", currentSearch);
+    if (!currentFilter) params.delete("name");
+    else params.set("name", currentFilter);
 
     const queryString = params.toString();
     return queryString ? `?${queryString}` : "";
@@ -58,8 +60,13 @@ export default async function WorkoutsPage({
     <div className="container mx-auto py-6 space-y-6">
       <Card>
         <CardHeader className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <CardTitle>{currentFilter ? `${currentFilter} Workouts` : "All Workouts"}</CardTitle>
-          <WorkoutFilter distinctNames={distinctNames} currentFilter={currentFilter} />
+          <CardTitle>
+            {currentFilter ? `${currentFilter} Workouts` : "All Workouts"}
+          </CardTitle>
+          <WorkoutFilter
+            distinctNames={distinctNames}
+            currentFilter={currentFilter}
+          />
         </CardHeader>
         <CardContent>
           <form className="flex flex-col sm:flex-row gap-4 mb-6">
@@ -83,7 +90,9 @@ export default async function WorkoutsPage({
 
           {workouts.length === 0 && (
             <div className="text-center py-8 text-muted-foreground">
-              {currentFilter ? `No '${currentFilter}' workouts found` : "No workouts found"}
+              {currentFilter
+                ? `No '${currentFilter}' workouts found`
+                : "No workouts found"}
             </div>
           )}
 
@@ -95,9 +104,7 @@ export default async function WorkoutsPage({
                 disabled={currentPage <= 1}
                 asChild
               >
-                <Link
-                  href={`/workout${buildUrlQuery(currentPage - 1)}`}
-                >
+                <Link href={`/workout${buildUrlQuery(currentPage - 1)}`}>
                   <ChevronLeft className="h-4 w-4 mr-2" />
                   Previous
                 </Link>
@@ -111,9 +118,7 @@ export default async function WorkoutsPage({
                 disabled={currentPage >= totalPages}
                 asChild
               >
-                <Link
-                  href={`/workout${buildUrlQuery(currentPage + 1)}`}
-                >
+                <Link href={`/workout${buildUrlQuery(currentPage + 1)}`}>
                   Next
                   <ChevronRight className="h-4 w-4 ml-2" />
                 </Link>
@@ -124,4 +129,4 @@ export default async function WorkoutsPage({
       </Card>
     </div>
   );
-} 
+}

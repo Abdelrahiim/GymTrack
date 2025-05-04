@@ -3,7 +3,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Plus, Trash2 } from "lucide-react";
 import { SetForm } from "./SetForm";
-import { Control, UseFormRegister, useFieldArray, FieldErrors, UseFormGetValues, UseFormSetValue } from "react-hook-form";
+import {
+  Control,
+  UseFormRegister,
+  useFieldArray,
+  FieldErrors,
+  UseFormGetValues,
+  UseFormSetValue,
+} from "react-hook-form";
 import { WorkoutFormValues } from "./WorkoutForm";
 
 interface ExerciseFormProps {
@@ -23,10 +30,14 @@ export function ExerciseForm({
   removeExercise,
   canRemove,
 }: ExerciseFormProps) {
-  const { fields: setFields, append: appendSet, remove: removeSet } = useFieldArray({
+  const {
+    fields: setFields,
+    append: appendSet,
+    remove: removeSet,
+  } = useFieldArray({
     control,
     name: `exercises.${exerciseIndex}.sets`,
-    keyName: "fieldId"
+    keyName: "fieldId",
   });
 
   return (
@@ -80,4 +91,4 @@ export function ExerciseForm({
       </CardContent>
     </Card>
   );
-} 
+}

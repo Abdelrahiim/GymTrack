@@ -23,11 +23,11 @@ interface WorkoutListProps {
 
 export function WorkoutList({ workouts }: WorkoutListProps) {
   const [expandedWorkout, setExpandedWorkout] = useState<string | null>(null);
-  
+
   const toggleWorkout = (workoutId: string) => {
     setExpandedWorkout(expandedWorkout === workoutId ? null : workoutId);
   };
-  
+
   return (
     <div className="space-y-4">
       {workouts.map((workout) => (
@@ -59,7 +59,8 @@ export function WorkoutList({ workouts }: WorkoutListProps) {
                     <div className="grid grid-cols-3 gap-2 text-sm text-muted-foreground">
                       {exercise.sets.map((set, setIndex) => (
                         <div key={setIndex}>
-                          Set {setIndex + 1}: {set.weight ? set.weight + "kg" : "N/A"} × {set.reps}
+                          Set {setIndex + 1}:{" "}
+                          {set.weight ? set.weight + "kg" : "N/A"} × {set.reps}
                         </div>
                       ))}
                     </div>
@@ -72,4 +73,4 @@ export function WorkoutList({ workouts }: WorkoutListProps) {
       ))}
     </div>
   );
-} 
+}

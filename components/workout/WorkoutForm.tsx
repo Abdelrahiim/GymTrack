@@ -5,7 +5,14 @@ import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useFieldArray } from "react-hook-form";
 import * as z from "zod";
-import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "@/components/ui/form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, Plus } from "lucide-react";
@@ -15,32 +22,36 @@ import { WorkoutActions } from "@/components/workout/WorkoutActions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { createWorkout, updateWorkout } from "@/actions/workouts";
-import { format } from 'date-fns';
+import { format } from "date-fns";
 
 const workoutSchema = z.object({
   date: z.string(),
   name: z.string().optional(),
-  exercises: z.array(
-    z.object({
-      id: z.string().optional(),
-      name: z.string().min(1, { message: "Exercise name is required" }),
-      sets: z.array(
-        z.object({
-          id: z.string().optional(),
-          reps: z.number().min(0).optional(),
-          weight: z.number().min(0).optional(),
-        })
-      ).min(1, "Must have at least one set"),
-    })
-  ).min(1, "Must have at least one exercise"),
+  exercises: z
+    .array(
+      z.object({
+        id: z.string().optional(),
+        name: z.string().min(1, { message: "Exercise name is required" }),
+        sets: z
+          .array(
+            z.object({
+              id: z.string().optional(),
+              reps: z.number().min(0).optional(),
+              weight: z.number().min(0).optional(),
+            })
+          )
+          .min(1, "Must have at least one set"),
+      })
+    )
+    .min(1, "Must have at least one exercise"),
 });
 
 export type WorkoutFormValues = z.infer<typeof workoutSchema>;
 
 interface ExerciseStateItem {
-    id?: string;
-    name: string;
-    sets: Array<{ id?: string; reps: number; weight: number }>;
+  id?: string;
+  name: string;
+  sets: Array<{ id?: string; reps: number; weight: number }>;
 }
 
 interface InitialWorkoutData {
@@ -73,26 +84,36 @@ export function WorkoutForm({ initialData }: WorkoutFormProps) {
     resolver: zodResolver(workoutSchema),
     defaultValues: initialData
       ? {
-          date: format(new Date(initialData.date), 'yyyy-MM-dd'),
+          date: format(new Date(initialData.date), "yyyy-MM-dd"),
           name: initialData.name ?? "",
-          exercises: initialData.exercises.map(ex => ({
+          exercises: initialData.exercises.map((ex) => ({
             id: ex.id,
             name: ex.name,
-            sets: ex.sets.map(set => ({ id: set.id, reps: set.reps, weight: set.weight ?? undefined }))
-          }))
+            sets: ex.sets.map((set) => ({
+              id: set.id,
+              reps: set.reps,
+              weight: set.weight ?? undefined,
+            })),
+          })),
         }
       : {
           date: new Date().toISOString().substring(0, 10),
           name: "",
-          exercises: [{ name: "", sets: [{ reps: undefined, weight: undefined }] }],
+          exercises: [
+            { name: "", sets: [{ reps: undefined, weight: undefined }] },
+          ],
         },
-    mode: 'onChange',
+    mode: "onChange",
   });
 
-  const { fields: exerciseFields, append: appendExercise, remove: removeExercise } = useFieldArray({
+  const {
+    fields: exerciseFields,
+    append: appendExercise,
+    remove: removeExercise,
+  } = useFieldArray({
     control: form.control,
     name: "exercises",
-    keyName: "fieldId"
+    keyName: "fieldId",
   });
 
   const onSubmit = async (data: WorkoutFormValues) => {
@@ -103,13 +124,13 @@ export function WorkoutForm({ initialData }: WorkoutFormProps) {
       const workoutPayload = {
         date: data.date,
         name: data.name || null,
-        exercises: data.exercises.map(ex => ({
+        exercises: data.exercises.map((ex) => ({
           name: ex.name,
-          sets: ex.sets.map(set => ({
+          sets: ex.sets.map((set) => ({
             reps: Number(set.reps) || 0,
-            weight: Number(set.weight) || 0
-          }))
-        }))
+            weight: Number(set.weight) || 0,
+          })),
+        })),
       };
 
       if (isEditing && initialData) {
@@ -121,8 +142,13 @@ export function WorkoutForm({ initialData }: WorkoutFormProps) {
       }
       router.refresh();
     } catch (error: any) {
-      console.error(`Error ${isEditing ? 'updating' : 'creating'} workout:`, error);
-      setError(error.message || `Failed to ${isEditing ? 'update' : 'create'} workout.`);
+      console.error(
+        `Error ${isEditing ? "updating" : "creating"} workout:`,
+        error
+      );
+      setError(
+        error.message || `Failed to ${isEditing ? "update" : "create"} workout.`
+      );
     } finally {
       setLoading(false);
     }
@@ -130,7 +156,10 @@ export function WorkoutForm({ initialData }: WorkoutFormProps) {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 sm:space-y-6">
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="space-y-4 sm:space-y-6"
+      >
         {error && (
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
@@ -159,7 +188,12 @@ export function WorkoutForm({ initialData }: WorkoutFormProps) {
             <CardTitle>Exercises</CardTitle>
             <Button
               type="button"
-              onClick={() => appendExercise({ name: "", sets: [{ reps: undefined, weight: undefined }] })}
+              onClick={() =>
+                appendExercise({
+                  name: "",
+                  sets: [{ reps: undefined, weight: undefined }],
+                })
+              }
               className="gap-2"
             >
               <Plus className="h-4 w-4" />
@@ -181,19 +215,21 @@ export function WorkoutForm({ initialData }: WorkoutFormProps) {
               />
             ))}
             {form.formState.errors.exercises?.root?.message && (
-                <p className="text-sm font-medium text-destructive">
-                    {form.formState.errors.exercises.root.message}
-                </p>
+              <p className="text-sm font-medium text-destructive">
+                {form.formState.errors.exercises.root.message}
+              </p>
             )}
           </CardContent>
         </Card>
 
         <WorkoutActions
           loading={loading}
-          cancelHref={isEditing && initialData ? `/workout/${initialData.id}` : '/'}
+          cancelHref={
+            isEditing && initialData ? `/workout/${initialData.id}` : "/"
+          }
           submitText={isEditing ? "Update Workout" : "Log Workout"}
         />
       </form>
     </Form>
   );
-} 
+}

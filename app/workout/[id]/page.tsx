@@ -85,7 +85,7 @@ export default async function WorkoutDetails({
                 <CardTitle className="text-2xl mb-1">{workout.name}</CardTitle>
               )}
               <p className="text-sm text-muted-foreground">
-                 {format(new Date(workout.date), "EEEE, MMMM d, yyyy")}
+                {format(new Date(workout.date), "EEEE, MMMM d, yyyy")}
               </p>
             </div>
             {isAdmin && (

@@ -59,7 +59,12 @@ export function WorkoutCard({ workout }: WorkoutCardProps) {
               {format(new Date(workout.date), "EEEE, MMMM d, yyyy")}
             </p>
           </div>
-          <Button asChild variant="default" size="sm" className="w-full sm:w-auto">
+          <Button
+            asChild
+            variant="default"
+            size="sm"
+            className="w-full sm:w-auto"
+          >
             <Link href={`/workout/${workout.id}`}>
               View Details
               <ArrowRight className="ml-2 h-4 w-4" />
@@ -67,7 +72,7 @@ export function WorkoutCard({ workout }: WorkoutCardProps) {
           </Button>
         </div>
       </CardHeader>
-      
+
       <CardContent className="space-y-4">
         <div className="flex items-center gap-4 text-sm text-muted-foreground">
           <div className="flex items-center gap-1">
@@ -78,7 +83,7 @@ export function WorkoutCard({ workout }: WorkoutCardProps) {
             <span>{totalSets} sets</span>
           </div>
         </div>
-        
+
         <div className="mt-4 space-y-2">
           {workout.exercises.slice(0, 3).map((exercise) => (
             <div
@@ -100,4 +105,4 @@ export function WorkoutCard({ workout }: WorkoutCardProps) {
       </CardContent>
     </Card>
   );
-} 
+}

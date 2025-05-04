@@ -27,7 +27,7 @@ export default async function EditWorkoutPage({
         include: {
           sets: true,
         },
-        orderBy: { createdAt: 'asc' } // Maintain order
+        orderBy: { createdAt: "asc" }, // Maintain order
       },
     },
   });
@@ -39,14 +39,14 @@ export default async function EditWorkoutPage({
 
   // Transform data slightly if needed (e.g., ensure weight is number)
   const transformedWorkoutData = {
-      ...workout,
-      exercises: workout.exercises.map(ex => ({
-          ...ex,
-          sets: ex.sets.map(set => ({
-              ...set,
-              weight: set.weight ?? 0 // Ensure weight is not null for form
-          }))
-      }))
+    ...workout,
+    exercises: workout.exercises.map((ex) => ({
+      ...ex,
+      sets: ex.sets.map((set) => ({
+        ...set,
+        weight: set.weight ?? 0, // Ensure weight is not null for form
+      })),
+    })),
   };
 
   return (
@@ -56,4 +56,4 @@ export default async function EditWorkoutPage({
       <WorkoutForm initialData={transformedWorkoutData as any} />
     </div>
   );
-} 
+}
