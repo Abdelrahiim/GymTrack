@@ -8,41 +8,41 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
 interface GoogleSignInProps {
-  isSignUp?: boolean;
+	isSignUp?: boolean;
 }
 
 export function GoogleSignIn({ isSignUp = false }: GoogleSignInProps) {
-  const [isLoading, setIsLoading] = useState(false);
+	const [isLoading, setIsLoading] = useState(false);
 
-  const handleGoogleSignIn = async () => {
-    try {
-      setIsLoading(true);
-      await signIn("google", {
-        callbackUrl: "/api/auth/callback/google",
-        redirect: true,
-      });
-    } catch (error) {
-      console.error("Google sign in error:", error);
-      toast.error("An unexpected error occurred. Please try again.");
-      setIsLoading(false);
-    }
-  };
+	const handleGoogleSignIn = async () => {
+		try {
+			setIsLoading(true);
+			await signIn("google", {
+				callbackUrl: "/api/auth/callback/google",
+				redirect: true,
+			});
+		} catch (error) {
+			console.error("Google sign in error:", error);
+			toast.error("An unexpected error occurred. Please try again.");
+			setIsLoading(false);
+		}
+	};
 
-  return (
-    <Button
-      variant="outline"
-      onClick={handleGoogleSignIn}
-      className="w-full"
-      disabled={isLoading}
-    >
-      <Image
-        src="/google-logo.svg"
-        alt="Google Logo"
-        width={20}
-        height={20}
-        className="mr-2"
-      />
-      {isSignUp ? "Sign up with Google" : "Sign in with Google"}
-    </Button>
-  );
+	return (
+		<Button
+			variant="outline"
+			onClick={handleGoogleSignIn}
+			className="w-full"
+			disabled={isLoading}
+		>
+			<Image
+				src="/google-logo.svg"
+				alt="Google Logo"
+				width={20}
+				height={20}
+				className="mr-2"
+			/>
+			{isSignUp ? "Sign up with Google" : "Sign in with Google"}
+		</Button>
+	);
 }

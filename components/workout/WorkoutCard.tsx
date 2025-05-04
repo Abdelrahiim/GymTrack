@@ -51,28 +51,34 @@ export function WorkoutCard({ workout }: WorkoutCardProps) {
 		0,
 	);
 
-	const formatExerciseWeights = (sets: Array<{ weight: number; weightUnit?: WeightUnit }>): string => {
-		const weights = sets.filter(s => s.weight > 0);
+	const formatExerciseWeights = (
+		sets: Array<{ weight: number; weightUnit?: WeightUnit }>,
+	): string => {
+		const weights = sets.filter((s) => s.weight > 0);
 		if (weights.length === 0) return "Bodyweight";
 
 		const uniqueEntries = Array.from(
-			new Map(weights.map(s => [`${s.weight}-${s.weightUnit || 'KG'}`, s])).values()
+			new Map(
+				weights.map((s) => [`${s.weight}-${s.weightUnit || "KG"}`, s]),
+			).values(),
 		);
 
 		uniqueEntries.sort((a, b) => (a.weight || 0) - (b.weight || 0));
 
-		return uniqueEntries.map(s => {
-			const unit = s.weightUnit || WeightUnit.KG;
-			switch(unit) {
-				case WeightUnit.KG:
-				case WeightUnit.LB:
-					return `${s.weight}${unit.toLowerCase()}`;
-				case WeightUnit.PLATES:
-					return `${s.weight} Plate${s.weight === 1 ? '' : 's'}`;
-				default:
-					return `${s.weight}kg`;
-			}
-		}).join(" / ");
+		return uniqueEntries
+			.map((s) => {
+				const unit = s.weightUnit || WeightUnit.KG;
+				switch (unit) {
+					case WeightUnit.KG:
+					case WeightUnit.LB:
+						return `${s.weight}${unit.toLowerCase()}`;
+					case WeightUnit.PLATES:
+						return `${s.weight} Plate${s.weight === 1 ? "" : "s"}`;
+					default:
+						return `${s.weight}kg`;
+				}
+			})
+			.join(" / ");
 	};
 
 	return (
@@ -120,8 +126,9 @@ export function WorkoutCard({ workout }: WorkoutCardProps) {
 						>
 							<span className="font-medium truncate pr-1">{exercise.name}</span>
 							<span className="text-muted-foreground whitespace-nowrap text-right">
-								{exercise.sets.length} {exercise.sets.length === 1 ? 'set' : 'sets'},
-								{' '}{formatExerciseWeights(exercise.sets)}
+								{exercise.sets.length}{" "}
+								{exercise.sets.length === 1 ? "set" : "sets"},{" "}
+								{formatExerciseWeights(exercise.sets)}
 							</span>
 						</div>
 					))}

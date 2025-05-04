@@ -9,33 +9,33 @@ import Footer from "@/components/footer";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Cap M.Saleh - Training Progress Tracker",
-  description: "Track your gym training progress and workouts with Cap M.Saleh",
+	title: "Cap M.Saleh - Training Progress Tracker",
+	description: "Track your gym training progress and workouts with Cap M.Saleh",
 };
 
 export default function RootLayout({
-  children,
+	children,
 }: Readonly<{
-  children: React.ReactNode;
+	children: React.ReactNode;
 }>) {
-  return (
-    <html lang="en" suppressHydrationWarning>
-      <body
-        className={cn(
-          inter.className,
-          "min-h-screen bg-background text-foreground"
-        )}
-      >
-        <ThemeProvider>
-          <SessionProvider>
-            <div className="min-h-screen flex flex-col">
-              <Navbar />
-              <main className="flex-grow">{children}</main>
-              <Footer />
-            </div>
-          </SessionProvider>
-        </ThemeProvider>
-      </body>
-    </html>
-  );
+	return (
+		<html lang="en" suppressHydrationWarning>
+			<body
+				className={cn(
+					inter.className,
+					"min-h-screen bg-background text-foreground",
+				)}
+			>
+				<ThemeProvider>
+					<SessionProvider>
+						<div className="min-h-screen flex flex-col">
+							<Navbar />
+							<main className="flex-grow">{children}</main>
+							<Footer />
+						</div>
+					</SessionProvider>
+				</ThemeProvider>
+			</body>
+		</html>
+	);
 }

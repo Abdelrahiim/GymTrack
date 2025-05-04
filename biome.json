@@ -14,7 +14,9 @@
 			"public",
 			"*.log",
 			"*.env",
-			".next"
+			".next",
+			"lib/generated",
+			"components/ui"
 		]
 	},
 	"formatter": {
