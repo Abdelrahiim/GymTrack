@@ -237,3 +237,82 @@ export async function getAllDistinctWorkoutNames(): Promise<string[]> {
     // Ensure names are not null and return the array of strings
     return distinctNames.map(item => item.name).filter(name => name !== null) as string[];
 }
+
+// --- UPDATE WORKOUT ACTION ---
+export async function updateWorkout(
+  workoutId: string,
+  formData: {
+    date: string;
+    name: string | null;
+    exercises: ExerciseInput[]; // Re-use type from createWorkout
+  }
+) {
+  try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      throw new Error("Unauthorized");
+    }
+
+    const { date, name, exercises } = formData;
+
+    // Verify the user owns the workout they are trying to update
+    const existingWorkout = await prisma.workout.findUnique({
+      where: {
+        id: workoutId,
+        userId: session.user.id,
+      },
+    });
+
+    if (!existingWorkout) {
+      throw new Error("Workout not found or you do not have permission to edit it.");
+    }
+
+    // Perform the update within a transaction
+    await prisma.$transaction(async (tx) => {
+      // 1. Delete existing exercises (and sets via cascading delete)
+      await tx.exercise.deleteMany({
+        where: {
+          workoutId: workoutId,
+        },
+      });
+
+      // 2. Update the workout itself (date, name)
+      await tx.workout.update({
+        where: {
+          id: workoutId,
+        },
+        data: {
+          date: new Date(date),
+          name: name,
+          // Create new exercises and sets
+          exercises: {
+            create: exercises.map((exercise) => ({
+              name: exercise.name,
+              sets: {
+                create: exercise.sets.map((set) => ({
+                  reps: set.reps,
+                  weight: set.weight,
+                })),
+              },
+            })),
+          },
+        },
+      });
+    });
+
+    // Revalidate relevant paths
+    revalidatePath("/"); // Revalidate dashboard
+    revalidatePath(`/workout/${workoutId}`); // Revalidate workout details page
+    revalidatePath(`/workout/${workoutId}/edit`); // Revalidate edit page itself
+    revalidatePath("/workout"); // Revalidate workout list page
+    // Optionally revalidate admin paths if needed
+    // revalidatePath("/admin/workouts");
+
+    return { success: true };
+
+  } catch (error: any) {
+    console.error("Error updating workout:", error);
+    // Rethrow specific error messages or a generic one
+    throw new Error(error.message || "Failed to update workout");
+  }
+}

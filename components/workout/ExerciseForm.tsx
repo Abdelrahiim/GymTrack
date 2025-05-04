@@ -3,38 +3,39 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Plus, Trash2 } from "lucide-react";
 import { SetForm } from "./SetForm";
+import { Control, UseFormRegister, useFieldArray, FieldErrors, UseFormGetValues, UseFormSetValue } from "react-hook-form";
+import { WorkoutFormValues } from "./WorkoutForm";
 
 interface ExerciseFormProps {
+  control: Control<WorkoutFormValues>;
+  register: UseFormRegister<WorkoutFormValues>;
   exerciseIndex: number;
-  name: string;
-  sets: Array<{ reps: number; weight: number }>;
-  onNameChange: (value: string) => void;
-  onAddSet: () => void;
-  onRemoveSet: (setIndex: number) => void;
-  onSetChange: (setIndex: number, field: "reps" | "weight", value: number) => void;
-  onRemove: () => void;
+  removeExercise: (index: number) => void;
   canRemove: boolean;
+  getValues: UseFormGetValues<WorkoutFormValues>;
+  setValue: UseFormSetValue<WorkoutFormValues>;
 }
 
 export function ExerciseForm({
+  control,
+  register,
   exerciseIndex,
-  name,
-  sets,
-  onNameChange,
-  onAddSet,
-  onRemoveSet,
-  onSetChange,
-  onRemove,
+  removeExercise,
   canRemove,
 }: ExerciseFormProps) {
+  const { fields: setFields, append: appendSet, remove: removeSet } = useFieldArray({
+    control,
+    name: `exercises.${exerciseIndex}.sets`,
+    keyName: "fieldId"
+  });
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
         <div className="flex-1">
           <Input
             placeholder="Exercise Name"
-            value={name}
-            onChange={(e) => onNameChange(e.target.value)}
+            {...register(`exercises.${exerciseIndex}.name`)}
             className="text-xl font-semibold"
           />
         </div>
@@ -43,7 +44,7 @@ export function ExerciseForm({
             type="button"
             variant="ghost"
             size="icon"
-            onClick={onRemove}
+            onClick={() => removeExercise(exerciseIndex)}
             className="text-destructive hover:text-destructive/90"
           >
             <Trash2 className="h-4 w-4" />
@@ -57,7 +58,7 @@ export function ExerciseForm({
             type="button"
             variant="outline"
             size="sm"
-            onClick={onAddSet}
+            onClick={() => appendSet({ reps: undefined, weight: undefined })}
             className="gap-2"
           >
             <Plus className="h-4 w-4" />
@@ -65,16 +66,14 @@ export function ExerciseForm({
           </Button>
         </div>
         <div className="space-y-2">
-          {sets.map((set, setIndex) => (
+          {setFields.map((setField, setIndex) => (
             <SetForm
-              key={setIndex}
+              key={setField.fieldId}
+              exerciseIndex={exerciseIndex}
               setIndex={setIndex}
-              reps={set.reps}
-              weight={set.weight}
-              onRepsChange={(value) => onSetChange(setIndex, "reps", value)}
-              onWeightChange={(value) => onSetChange(setIndex, "weight", value)}
-              onRemove={() => onRemoveSet(setIndex)}
-              canRemove={sets.length > 1}
+              register={register}
+              removeSet={removeSet}
+              canRemove={setFields.length > 1}
             />
           ))}
         </div>

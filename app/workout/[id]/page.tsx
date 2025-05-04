@@ -5,12 +5,12 @@ import Link from "next/link";
 import { format } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Dumbbell } from "lucide-react";
+import { ArrowLeft, Dumbbell, Pencil } from "lucide-react";
 
 export default async function WorkoutDetails({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: { id: string };
 }) {
   const session = await auth();
 
@@ -19,10 +19,9 @@ export default async function WorkoutDetails({
   }
 
   // Get workout details
-  const { id } = await Promise.resolve(params);
   const workout = await prisma.workout.findUnique({
     where: {
-      id,
+      id: params.id,
     },
     include: {
       exercises: {
@@ -65,6 +64,14 @@ export default async function WorkoutDetails({
         {isAdmin && (
           <Link href={`/admin/workouts/${workout.userId}`}>
             <Button variant="outline">View All Workouts</Button>
+          </Link>
+        )}
+        {isOwner && (
+          <Link href={`/workout/${params.id}/edit`}>
+            <Button variant="outline">
+              <Pencil className="mr-2 h-4 w-4" />
+              Edit Workout
+            </Button>
           </Link>
         )}
       </div>

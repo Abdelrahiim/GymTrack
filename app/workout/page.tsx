@@ -18,7 +18,7 @@ interface WorkoutPageSearchParams {
 export default async function WorkoutsPage({
   searchParams,
 }: {
-  searchParams: WorkoutPageSearchParams;
+  searchParams: Promise<WorkoutPageSearchParams>;
 }) {
   const session = await auth();
 
@@ -26,7 +26,7 @@ export default async function WorkoutsPage({
     redirect("/auth/signin");
   }
 
-  const { search, page: pageParam, name } = searchParams;
+  const { search, page: pageParam, name } = await Promise.resolve(searchParams);
   const currentPage = Number(pageParam) || 1;
   const currentSearch = search || "";
   const currentFilter = name || "";
