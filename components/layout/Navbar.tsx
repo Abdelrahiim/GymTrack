@@ -241,7 +241,7 @@ export default function Navbar() {
                               Manage Users
                             </Link>
                           )}
-                          <Link
+                          {/* <Link
                             href="/profile"
                             className={cn(
                               "block px-4 py-2 text-sm",
@@ -258,7 +258,7 @@ export default function Navbar() {
                             )}
                           >
                             Settings
-                          </Link>
+                          </Link> */}
                           <button
                             onClick={() =>
                               signOut({ callbackUrl: "/auth/signin" })
