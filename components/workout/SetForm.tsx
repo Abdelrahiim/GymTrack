@@ -49,11 +49,11 @@ export function SetForm({
 	return (
 		<Card>
 			<CardContent className="p-4">
-				<div className="flex items-end justify-between gap-2">
+				<div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 sm:gap-2">
 					<div className="font-medium whitespace-nowrap">
 						Set {setIndex + 1}
 					</div>
-					<div className="flex items-end gap-2">
+					<div className="flex flex-wrap items-end justify-end gap-2">
 						<div className="flex flex-col gap-1">
 							<label
 								htmlFor={`${unitFieldName}-reps`}
@@ -70,7 +70,7 @@ export function SetForm({
 									`exercises.${exerciseIndex}.sets.${setIndex}.reps`,
 									{ valueAsNumber: true },
 								)}
-								className="w-16 sm:w-20"
+								className="w-20"
 							/>
 						</div>
 						<div className="flex flex-col gap-1">
@@ -87,7 +87,7 @@ export function SetForm({
 								step="0.5"
 								placeholder="0"
 								{...register(weightFieldName, { valueAsNumber: true })}
-								className="w-16 sm:w-20"
+								className="w-20"
 							/>
 						</div>
 						<Controller
@@ -115,7 +115,7 @@ export function SetForm({
 									>
 										<SelectTrigger
 											id={unitFieldName}
-											className="w-[90px] sm:w-[100px]"
+											className="w-[100px]"
 										>
 											<SelectValue placeholder="Unit" />
 										</SelectTrigger>
@@ -136,7 +136,7 @@ export function SetForm({
 								variant="ghost"
 								size="icon"
 								onClick={() => removeSet(setIndex)}
-								className="text-destructive hover:text-destructive/90 mb-0.5"
+								className="text-destructive hover:text-destructive/90 self-end mb-0.5"
 							>
 								<Trash2 className="h-4 w-4" />
 							</Button>
