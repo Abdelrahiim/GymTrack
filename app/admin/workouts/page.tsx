@@ -128,7 +128,6 @@ export default async function AdminWorkouts({
 		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 			<div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
 				<h1 className="text-3xl font-bold">
-					pnpm biome init{" "}
 					{currentFilter ? `${currentFilter} Workouts` : "All User Workouts"}
 				</h1>
 				<div className="flex items-center gap-2">
