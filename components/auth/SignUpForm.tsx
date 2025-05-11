@@ -19,6 +19,7 @@ import {
 	FormLabel,
 	FormMessage,
 } from "@/components/ui/form";
+import { signIn } from "next-auth/react";
 
 export function SignUpForm() {
 	const router = useRouter();
@@ -28,6 +29,7 @@ export function SignUpForm() {
 	const form = useForm<SignUpFormData>({
 		resolver: zodResolver(signUpSchema),
 		defaultValues: {
+			name: "",
 			email: "",
 			password: "",
 			confirmPassword: "",
@@ -39,18 +41,49 @@ export function SignUpForm() {
 			const formData = new FormData();
 			formData.append("email", data.email);
 			formData.append("password", data.password);
+			formData.append("name", data.name);
+			formData.append("confirm-password", data.confirmPassword);
+
+			console.log("Submitting registration data:", {
+				email: data.email,
+				name: data.name,
+				// Don't log password for security
+			});
 
 			const result = await registerUser(formData);
+			console.log("Registration result:", result);
 
 			if (result.error) {
 				toast.error(result.error);
 				return;
 			}
 
-			toast.success("Account created successfully!");
+			console.log("Registration successful, attempting sign in");
+			
+			// Wait a moment before trying to sign in to ensure the database has updated
+			await new Promise(resolve => setTimeout(resolve, 500));
+			
+			console.log("Attempting sign in after registration");
+			const signInResult = await signIn("credentials", {
+				email: data.email,
+				password: data.password,
+				redirect: false,
+				callbackUrl: "/"
+			});
+			console.log("Sign in result:", signInResult);
+
+			if (signInResult?.error) {
+				console.error("Auto sign-in failed:", signInResult.error);
+				toast.success("Account created! Please sign in manually.");
+				router.push("/auth/signin");
+				return;
+			}
+
+			toast.success("Account created and signed in successfully!");
 			router.push("/");
 			router.refresh();
 		} catch (error) {
+			console.error("Registration error:", error);
 			toast.error("Something went wrong. Please try again.");
 		}
 	};
@@ -58,6 +91,23 @@ export function SignUpForm() {
 	return (
 		<Form {...form}>
 			<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+				<FormField
+					control={form.control}
+					name="name"
+					render={({ field }) => (
+						<FormItem>
+							<FormLabel>Name</FormLabel>
+							<FormControl>
+								<Input
+									type="text"
+									placeholder="Enter your name"
+									{...field}
+								/>
+							</FormControl>
+							<FormMessage />
+						</FormItem>
+					)}
+				/>
 				<FormField
 					control={form.control}
 					name="email"

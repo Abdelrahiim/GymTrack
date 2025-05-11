@@ -24,10 +24,18 @@ import { Input } from "@/components/ui/input";
 import { createWorkout, updateWorkout } from "@/actions/workouts";
 import { format } from "date-fns";
 import { WeightUnit } from "@/lib/generated/prisma/client";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
 
 const workoutSchema = z.object({
 	date: z.string(),
 	name: z.string().optional(),
+	workoutDayId: z.string().min(1, { message: "Workout day is required" }),
 	exercises: z
 		.array(
 			z.object({
@@ -60,6 +68,7 @@ export interface InitialWorkoutData {
 	id: string;
 	date: Date;
 	name: string | null;
+	workoutDayId?: string | null;
 	exercises: Array<{
 		id: string;
 		name: string;
@@ -72,27 +81,47 @@ export interface InitialWorkoutData {
 	}>;
 }
 
+// Add WorkoutDay typing
+interface WorkoutDay {
+	id: string;
+	name: string;
+	description: string | null;
+	levelId: string;
+	dayNumber: number;
+	createdAt: Date;
+	updatedAt: Date;
+}
+
+interface WorkoutFormProps {
+	initialData?: InitialWorkoutData;
+	workoutDays?: WorkoutDay[];
+}
+
 // Define the payload type based on what createWorkout/updateWorkout expect
 // This should match the parameters defined in those actions
 type WorkoutPayload = {
 	date: string;
 	name: string | null;
+	workoutDayId: string;
 	exercises: Array<{
 		name: string;
-		sets: Array<{ reps: number; weight: number; weightUnit: WeightUnit }>;
+		sets: Array<{
+			reps: number;
+			weight: number;
+			weightUnit: WeightUnit;
+		}>;
 	}>;
 };
 
-interface WorkoutFormProps {
-	initialData?: InitialWorkoutData;
-}
-
-export function WorkoutForm({ initialData }: WorkoutFormProps) {
+export function WorkoutForm({ initialData, workoutDays = [] }: WorkoutFormProps) {
 	const router = useRouter();
 	const isEditing = !!initialData;
 
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
+
+	// Set default workoutDayId to the first available day if present
+	const defaultWorkoutDayId = workoutDays.length > 0 ? workoutDays[0].id : "";
 
 	const form = useForm<WorkoutFormValues>({
 		resolver: zodResolver(workoutSchema),
@@ -100,6 +129,8 @@ export function WorkoutForm({ initialData }: WorkoutFormProps) {
 			? {
 					date: format(new Date(initialData.date), "yyyy-MM-dd"),
 					name: initialData.name ?? "",
+					// For editing, we should get the workoutDayId from the workout if available
+					workoutDayId: initialData.workoutDayId || defaultWorkoutDayId,
 					exercises: initialData.exercises.map((ex) => ({
 						id: ex.id,
 						name: ex.name,
@@ -114,6 +145,7 @@ export function WorkoutForm({ initialData }: WorkoutFormProps) {
 			: {
 					date: new Date().toISOString().substring(0, 10),
 					name: "",
+					workoutDayId: defaultWorkoutDayId,
 					exercises: [
 						{
 							name: "",
@@ -129,6 +161,16 @@ export function WorkoutForm({ initialData }: WorkoutFormProps) {
 				},
 		mode: "onChange",
 	});
+
+	// Update workoutDayId if workoutDays change and current value is invalid
+	useEffect(() => {
+		const currentWorkoutDayId = form.getValues("workoutDayId");
+		const workoutDayExists = workoutDays.some(day => day.id === currentWorkoutDayId);
+		
+		if (workoutDays.length > 0 && !workoutDayExists) {
+			form.setValue("workoutDayId", workoutDays[0].id);
+		}
+	}, [workoutDays, form]);
 
 	const {
 		fields: exerciseFields,
@@ -156,6 +198,7 @@ export function WorkoutForm({ initialData }: WorkoutFormProps) {
 			const workoutPayload: WorkoutPayload = {
 				date: data.date,
 				name: data.name || null,
+				workoutDayId: data.workoutDayId, // Add workout day ID
 				exercises: data.exercises.map((ex) => ({
 					name: ex.name,
 					sets: ex.sets.map((set) => ({
@@ -207,6 +250,41 @@ export function WorkoutForm({ initialData }: WorkoutFormProps) {
 				)}
 
 				<WorkoutDetails control={form.control} />
+
+				{/* Add Workout Day Selection */}
+				<FormField
+					control={form.control}
+					name="workoutDayId"
+					render={({ field }) => (
+						<FormItem>
+							<FormLabel>Workout Day</FormLabel>
+							<FormControl>
+								<Select 
+									onValueChange={field.onChange} 
+									defaultValue={field.value}
+								>
+									<SelectTrigger>
+										<SelectValue placeholder="Select a workout day" />
+									</SelectTrigger>
+									<SelectContent>
+										{workoutDays.length === 0 ? (
+											<SelectItem value="no-days" disabled>
+												No workout days available
+											</SelectItem>
+										) : (
+											workoutDays.map((day) => (
+												<SelectItem key={day.id} value={day.id}>
+													{day.name} {day.description ? `- ${day.description}` : ''}
+												</SelectItem>
+											))
+										)}
+									</SelectContent>
+								</Select>
+							</FormControl>
+							<FormMessage />
+						</FormItem>
+					)}
+				/>
 
 				<FormField
 					control={form.control}

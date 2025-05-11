@@ -33,6 +33,7 @@ export default async function EditWorkoutPage({
 				},
 				orderBy: { createdAt: "asc" }, // Maintain order
 			},
+			workoutDay: true, // Include the workout day
 		},
 	});
 
@@ -40,6 +41,26 @@ export default async function EditWorkoutPage({
 	if (!workout) {
 		notFound();
 	}
+
+	// Fetch user with their current level and workout days
+	const user = await prisma.user.findUnique({
+		where: { id: session.user.id },
+		select: {
+			id: true,
+			currentLevelId: true,
+			currentLevel: {
+				include: {
+					workoutDays: true
+				}
+			}
+		}
+	});
+
+	if (!user?.currentLevelId || !user?.currentLevel) {
+		redirect("/dashboard");
+	}
+
+	const workoutDays = user.currentLevel.workoutDays;
 
 	// The fetched workout structure should match InitialWorkoutData
 	// if the Prisma query is correct. We don't need the transformation.
@@ -49,7 +70,7 @@ export default async function EditWorkoutPage({
 		<div className="container mx-auto px-4 py-4 sm:py-8 space-y-4 sm:space-y-6">
 			<WorkoutHeader title="Edit Workout" />
 			{/* Pass the correctly typed data without casting */}
-			<WorkoutForm initialData={initialDataForForm} />
+			<WorkoutForm initialData={initialDataForForm} workoutDays={workoutDays} />
 		</div>
 	);
 }

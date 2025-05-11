@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { signInUser } from "@/actions/auth";
+import { signIn } from "next-auth/react";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { signInSchema, type SignInFormData } from "@/lib/validations/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -23,6 +23,8 @@ import {
 export function SignInForm() {
 	const router = useRouter();
 	const [showPassword, setShowPassword] = useState(false);
+	const [isLoading, setIsLoading] = useState(false);
+	const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
 	const form = useForm<SignInFormData>({
 		resolver: zodResolver(signInSchema),
@@ -34,14 +36,29 @@ export function SignInForm() {
 
 	const onSubmit = async (data: SignInFormData) => {
 		try {
-			const formData = new FormData();
-			formData.append("email", data.email);
-			formData.append("password", data.password);
+			setIsLoading(true);
+			setErrorMessage(null);
+			
+			
+			const result = await signIn("credentials", {
+				email: data.email,
+				password: data.password,
+				redirect: false,
+			});
+			
 
-			const result = await signInUser(formData);
-
-			if (result.error) {
+			if (result?.error) {
+				console.error("Sign in error:", result.error);
+				setErrorMessage(result.error);
 				toast.error(result.error);
+				return;
+			}
+
+			if (!result?.ok) {
+				const message = "Failed to sign in. Please try again.";
+				console.error(message);
+				setErrorMessage(message);
+				toast.error(message);
 				return;
 			}
 
@@ -49,13 +66,23 @@ export function SignInForm() {
 			router.push("/");
 			router.refresh();
 		} catch (error) {
+			const message = error instanceof Error ? error.message : "An unexpected error occurred";
+			console.error("Sign in exception:", error);
+			setErrorMessage(message);
 			toast.error("Something went wrong. Please try again.");
+		} finally {
+			setIsLoading(false);
 		}
 	};
 
 	return (
 		<Form {...form}>
 			<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+				{errorMessage && (
+					<div className="bg-destructive/15 text-destructive text-sm p-3 rounded-md">
+						{errorMessage}
+					</div>
+				)}
 				<FormField
 					control={form.control}
 					name="email"
@@ -66,6 +93,7 @@ export function SignInForm() {
 								<Input
 									type="email"
 									placeholder="Enter your email address"
+									autoComplete="email"
 									{...field}
 								/>
 							</FormControl>
@@ -84,6 +112,7 @@ export function SignInForm() {
 									<Input
 										type={showPassword ? "text" : "password"}
 										placeholder="Enter your password"
+										autoComplete="current-password"
 										{...field}
 									/>
 									<Button
@@ -111,9 +140,9 @@ export function SignInForm() {
 				<Button
 					type="submit"
 					className="w-full"
-					disabled={form.formState.isSubmitting}
+					disabled={isLoading}
 				>
-					{form.formState.isSubmitting ? (
+					{isLoading ? (
 						<>
 							<Loader2 className="mr-2 h-4 w-4 animate-spin" />
 							Signing in...
