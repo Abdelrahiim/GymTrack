@@ -6,74 +6,65 @@ import { signIn } from "@/auth";
 import { AuthError } from "next-auth";
 
 export async function registerUser(formData: FormData) {
-	try {
-		const email = formData.get("email") as string;
-		const password = formData.get("password") as string;
-		const name = formData.get("name") as string;
-		const confirmPassword = formData.get("confirm-password") as string;
+  try {
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+    const name = formData.get("name") as string;
+    const confirmPassword = formData.get("confirm-password") as string;
 
-		if (password !== confirmPassword) {
-			return { error: "Passwords do not match" };
-		}
 
-		// Check if user already exists
-		const existingUser = await prisma.user.findUnique({
-			where: { email },
-		});
+    // Input validation
+    if (!email || !password || !name || !confirmPassword) {
+      console.error("Missing required fields");
+      return { error: "All fields are required" };
+    }
 
-		if (existingUser) {
-			return { error: "User already exists" };
-		}
+    if (password !== confirmPassword) {
+      console.error("Passwords do not match");
+      return { error: "Passwords do not match" };
+    }
 
-		// Hash password
-		const hashedPassword = await hash(password, 12);
+    if (password.length < 6) {
+      console.error("Password too short");
+      return { error: "Password must be at least 6 characters long" };
+    }
 
-		// Create user
-		await prisma.user.create({
-			data: {
-				email,
-				name,
-				password: hashedPassword,
-			},
-		});
+    // Check if user already exists
+    const existingUser = await prisma.user.findUnique({
+      where: { email },
+    });
 
-		// Sign in the user
-		try {
-			await signIn("credentials", {
-				email,
-				password,
-				redirect: false,
-			});
-		} catch (error) {
-			if (error instanceof AuthError) {
-				return { error: error.message };
-			}
-			throw error;
-		}
+    if (existingUser) {
+      console.error("User already exists:", email);
+      return { error: "User with this email already exists" };
+    }
 
-		return { success: true };
-	} catch (error) {
-		console.error("Registration error:", error);
-		return { error: "Something went wrong" };
-	}
-}
+    // Hash password
+    const hashedPassword = await hash(password, 12);
 
-export async function signInUser(formData: FormData) {
-	try {
-		const email = formData.get("email") as string;
-		const password = formData.get("password") as string;
+    // Create user with NextAuth compatible fields
+    console.log("Creating new user in database");
+    const user = await prisma.user.create({
+      data: {
+        email,
+        name,
+        password: hashedPassword,
+        role: "USER", // Custom role field
+        emailVerified: null, // NextAuth expects this field
+        image: null, // NextAuth expects this field
+      },
+    });
 
-		await signIn("credentials", {
-			email,
-			password,
-			redirect: false,
-		});
+    console.log("User created successfully:", user.id);
 
-		return { success: true };
-	} catch (error) {
-		if (error instanceof AuthError) {
-			return { error: error.message };
-		}
-		throw error;
-	}
+    if (!user) {
+      console.error("Failed to create user");
+      return { error: "Failed to create user" };
+    }
+
+    return { success: true, userId: user.id, message: "Account created successfully!" };
+  } catch (error) {
+    console.error("Registration error:", error);
+    return { error: "Failed to create account. Please try again." };
+  }
 }
