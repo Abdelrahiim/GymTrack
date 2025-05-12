@@ -46,17 +46,14 @@ export function SignInForm() {
 				redirect: false,
 			});
 			
-
 			if (result?.error) {
-				console.error("Sign in error:", result.error);
-				setErrorMessage(result.error);
-				toast.error(result.error);
+				setErrorMessage("Invalid email or password");
+				toast.error("Invalid email or password");
 				return;
 			}
 
 			if (!result?.ok) {
 				const message = "Failed to sign in. Please try again.";
-				console.error(message);
 				setErrorMessage(message);
 				toast.error(message);
 				return;
