@@ -135,7 +135,8 @@ export default async function Dashboard() {
 									<h4 className="text-sm font-medium mb-3">
 										This Week's Training
 									</h4>
-									<div className="grid grid-cols-7 gap-1 sm:gap-2">
+									<div className="grid grid-cols-4 sm:grid-cols-7 gap-1 sm:gap-2">
+										{/* Sunday to Wednesday in first row for mobile (all days in one row for larger screens) */}
 										{Array.from({ length: 7 }, (_, i) => {
 											const dayDate = addDays(weekStart, i);
 											const isToday = isSameDay(dayDate, today);
@@ -145,7 +146,7 @@ export default async function Dashboard() {
 											
 											// Find workout for this day in the current week
 											const dayWorkout = recentWorkouts.find((workout) =>
-												isSameDay(new Date(workout.date), dayDate)
+												isSameDay(new Date(workout.date), dayDate),
 											);
 											
 											// Get the pattern for this day of week from historical data
@@ -163,7 +164,7 @@ export default async function Dashboard() {
 											return (
 												<div
 													key={format(dayDate, "yyyy-MM-dd")}
-													className={`p-1 sm:p-2 text-center rounded-md ${
+													className={`p-1 text-center rounded-md ${
 														isToday ? "ring-2 ring-primary ring-offset-1" : ""
 													} ${
 														isCompleted
