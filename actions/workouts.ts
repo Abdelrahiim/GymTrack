@@ -350,3 +350,32 @@ export async function updateWorkout(
 		throw new Error(errorMessage);
 	}
 }
+
+// Function to get workout day names from the user's current level
+export async function getWorkoutDayNames() {
+	const session = await auth();
+
+	if (!session?.user?.id) {
+		return [];
+	}
+
+	const user = await prisma.user.findUnique({
+		where: { id: session.user.id },
+		include: {
+			currentLevel: {
+				include: {
+					workoutDays: {
+						orderBy: { dayNumber: "asc" },
+					},
+				},
+			},
+		},
+	});
+
+	if (!user?.currentLevel?.workoutDays) {
+		return [];
+	}
+
+	// Extract the names from workout days and ensure they're not null
+	return user.currentLevel.workoutDays
+}

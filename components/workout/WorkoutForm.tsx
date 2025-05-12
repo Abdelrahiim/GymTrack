@@ -1,29 +1,20 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
-import * as z from "zod";
-import {
-	Form,
-	FormField,
-	FormItem,
-	FormLabel,
-	FormControl,
-	FormMessage,
-} from "@/components/ui/form";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle, Plus } from "lucide-react";
-import { ExerciseForm } from "@/components/workout/ExerciseForm";
-import { WorkoutDetails } from "@/components/workout/WorkoutDetails";
-import { WorkoutActions } from "@/components/workout/WorkoutActions";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { createWorkout } from "@/actions/workouts";
+import { ExerciseForm } from "./ExerciseForm";
+import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { createWorkout, updateWorkout } from "@/actions/workouts";
-import { format } from "date-fns";
-import { WeightUnit } from "@/lib/generated/prisma/client";
+import { WeightUnit, type WorkoutDay } from "@/lib/generated/prisma/client";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+	workoutSchema,
+	type WorkoutFormValues,
+} from "@/lib/validations/workout";
 import {
 	Select,
 	SelectContent,
@@ -32,316 +23,163 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 
-const workoutSchema = z.object({
-	date: z.string(),
-	name: z.string().optional(),
-	workoutDayId: z.string().min(1, { message: "Workout day is required" }),
-	exercises: z
-		.array(
-			z.object({
-				id: z.string().optional(),
-				name: z.string().min(1, { message: "Exercise name is required" }),
-				sets: z
-					.array(
-						z.object({
-							id: z.string().optional(),
-							reps: z.number().min(0).optional(),
-							weight: z.number().min(0).optional(),
-							weightUnit: z.nativeEnum(WeightUnit).optional(),
-						}),
-					)
-					.min(1, "Must have at least one set"),
-			}),
-		)
-		.min(1, "Must have at least one exercise"),
-});
-
-export type WorkoutFormValues = z.infer<typeof workoutSchema>;
-
-interface ExerciseStateItem {
-	id?: string;
-	name: string;
-	sets: Array<{ id?: string; reps: number; weight: number }>;
-}
-
-export interface InitialWorkoutData {
-	id: string;
-	date: Date;
-	name: string | null;
-	workoutDayId?: string | null;
-	exercises: Array<{
-		id: string;
-		name: string;
-		sets: Array<{
-			id: string;
-			reps: number;
-			weight: number | null;
-			weightUnit: WeightUnit;
-		}>;
-	}>;
-}
-
-// Add WorkoutDay typing
-interface WorkoutDay {
-	id: string;
-	name: string;
-	description: string | null;
-	levelId: string;
-	dayNumber: number;
-	createdAt: Date;
-	updatedAt: Date;
-}
-
-interface WorkoutFormProps {
-	initialData?: InitialWorkoutData;
-	workoutDays?: WorkoutDay[];
-}
-
-// Define the payload type based on what createWorkout/updateWorkout expect
-// This should match the parameters defined in those actions
-type WorkoutPayload = {
-	date: string;
-	name: string | null;
-	workoutDayId: string;
-	exercises: Array<{
-		name: string;
-		sets: Array<{
-			reps: number;
-			weight: number;
-			weightUnit: WeightUnit;
-		}>;
-	}>;
+type WorkoutFormProps = {
+	workoutDays: WorkoutDay[];
 };
 
-export function WorkoutForm({ initialData, workoutDays = [] }: WorkoutFormProps) {
+export function WorkoutForm({ workoutDays }: WorkoutFormProps) {
 	const router = useRouter();
-	const isEditing = !!initialData;
+	const [isSubmitting, setIsSubmitting] = useState(false);
+	const [selectedWorkoutDayId, setSelectedWorkoutDayId] = useState<string>("");
 
-	const [loading, setLoading] = useState(false);
-	const [error, setError] = useState<string | null>(null);
-
-	// Set default workoutDayId to the first available day if present
-	const defaultWorkoutDayId = workoutDays.length > 0 ? workoutDays[0].id : "";
-
-	const form = useForm<WorkoutFormValues>({
+	const {
+		register,
+		control,
+		handleSubmit,
+		getValues,
+		setValue,
+		formState: { errors },
+	} = useForm<WorkoutFormValues>({
 		resolver: zodResolver(workoutSchema),
-		defaultValues: initialData
-			? {
-					date: format(new Date(initialData.date), "yyyy-MM-dd"),
-					name: initialData.name ?? "",
-					// For editing, we should get the workoutDayId from the workout if available
-					workoutDayId: initialData.workoutDayId || defaultWorkoutDayId,
-					exercises: initialData.exercises.map((ex) => ({
-						id: ex.id,
-						name: ex.name,
-						sets: ex.sets.map((set) => ({
-							id: set.id,
-							reps: set.reps,
-							weight: set.weight ?? undefined,
-							weightUnit: set.weightUnit,
-						})),
-					})),
-				}
-			: {
-					date: new Date().toISOString().substring(0, 10),
+		defaultValues: {
+			name: "",
+			exercises: [
+				{
 					name: "",
-					workoutDayId: defaultWorkoutDayId,
-					exercises: [
-						{
-							name: "",
-							sets: [
-								{
-									reps: undefined,
-									weight: undefined,
-									weightUnit: WeightUnit.KG,
-								},
-							],
-						},
-					],
+					sets: [{ reps: 10, weight: 0, weightUnit: WeightUnit.KG }],
 				},
-		mode: "onChange",
+			],
+		},
 	});
-
-	// Update workoutDayId if workoutDays change and current value is invalid
-	useEffect(() => {
-		const currentWorkoutDayId = form.getValues("workoutDayId");
-		const workoutDayExists = workoutDays.some(day => day.id === currentWorkoutDayId);
-		
-		if (workoutDays.length > 0 && !workoutDayExists) {
-			form.setValue("workoutDayId", workoutDays[0].id);
-		}
-	}, [workoutDays, form]);
 
 	const {
 		fields: exerciseFields,
 		append: appendExercise,
 		remove: removeExercise,
-	} = useFieldArray<WorkoutFormValues, "exercises", "fieldId">({
-		control: form.control,
+	} = useFieldArray({
+		control,
 		name: "exercises",
-		keyName: "fieldId",
 	});
 
-	const handleAppendExercise = () => {
-		appendExercise({
-			name: "",
-			sets: [{ reps: undefined, weight: undefined, weightUnit: WeightUnit.KG }],
-		});
-	};
-
 	const onSubmit = async (data: WorkoutFormValues) => {
-		setLoading(true);
-		setError(null);
-
+		setIsSubmitting(true);
 		try {
-			// Prepare data structure for actions
-			const workoutPayload: WorkoutPayload = {
-				date: data.date,
-				name: data.name || null,
-				workoutDayId: data.workoutDayId, // Add workout day ID
-				exercises: data.exercises.map((ex) => ({
-					name: ex.name,
-					sets: ex.sets.map((set) => ({
-						// Ensure values are numbers, default to 0 if undefined/null/NaN
-						reps: Number(set.reps) || 0,
-						weight: Number(set.weight) || 0,
-						weightUnit: set.weightUnit || WeightUnit.KG,
-					})),
-				})),
-			};
+			// Set today's date without time component
+			const today = new Date();
+			today.setHours(0, 0, 0, 0);
 
-			if (isEditing && initialData) {
-				await updateWorkout(initialData.id, workoutPayload);
-				router.push(`/workout/${initialData.id}`);
-			} else {
-				await createWorkout(workoutPayload);
-				router.push("/");
-			}
-			router.refresh();
-		} catch (error: unknown) {
-			console.error(
-				`Error ${isEditing ? "updating" : "creating"} workout:`,
-				error,
+			// Get the selected workout day name for the workout name
+			const selectedDay = workoutDays.find(
+				(day) => day.id === selectedWorkoutDayId,
 			);
-			// Type check before accessing error.message
-			let errorMessage = `Failed to ${
-				isEditing ? "update" : "create"
-			} workout.`;
-			if (error instanceof Error) {
-				errorMessage = error.message;
-			}
-			setError(errorMessage);
+
+			// Create workout with today's date
+			await createWorkout({
+				date: today.toISOString(),
+				name: selectedDay?.name || data.name || null,
+				workoutDayId: selectedWorkoutDayId,
+				exercises: data.exercises,
+			});
+
+			router.push("/workout");
+			router.refresh();
+		} catch (error) {
+			console.error("Error submitting workout:", error);
 		} finally {
-			setLoading(false);
+			setIsSubmitting(false);
 		}
 	};
 
 	return (
-		<Form {...form}>
-			<form
-				onSubmit={form.handleSubmit(onSubmit)}
-				className="space-y-4 sm:space-y-6"
-			>
-				{error && (
-					<Alert variant="destructive">
-						<AlertCircle className="h-4 w-4" />
-						<AlertDescription>{error}</AlertDescription>
-					</Alert>
-				)}
+		<form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+			<Card>
+				<CardContent className="pt-6">
+					<div className="space-y-4">
+						<div>
+							<Label htmlFor="workoutDay">Workout Type</Label>
+							<Select
+								onValueChange={(value) => {
+									setSelectedWorkoutDayId(value);
+									const selectedDay = workoutDays.find(
+										(day) => day.id === value,
+									);
+									setValue("name", selectedDay?.name || "");
+								}}
+								value={selectedWorkoutDayId}
+							>
+								<SelectTrigger className="w-full">
+									<SelectValue placeholder="Select a workout from your level" />
+								</SelectTrigger>
+								<SelectContent>
+									{workoutDays.map((day) => (
+										<SelectItem key={day.id} value={day.id}>
+											{day.name}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+						</div>
 
-				<WorkoutDetails control={form.control} />
-
-				{/* Add Workout Day Selection */}
-				<FormField
-					control={form.control}
-					name="workoutDayId"
-					render={({ field }) => (
-						<FormItem>
-							<FormLabel>Workout Day</FormLabel>
-							<FormControl>
-								<Select 
-									onValueChange={field.onChange} 
-									defaultValue={field.value}
+						<div className="space-y-6">
+							<div className="flex items-center justify-between">
+								<h3 className="text-lg font-medium">Exercises</h3>
+								<Button
+									type="button"
+									onClick={() =>
+										appendExercise({
+											name: "",
+											sets: [
+												{ reps: 10, weight: 0, weightUnit: WeightUnit.KG },
+											],
+										})
+									}
+									variant="outline"
 								>
-									<SelectTrigger>
-										<SelectValue placeholder="Select a workout day" />
-									</SelectTrigger>
-									<SelectContent>
-										{workoutDays.length === 0 ? (
-											<SelectItem value="no-days" disabled>
-												No workout days available
-											</SelectItem>
-										) : (
-											workoutDays.map((day) => (
-												<SelectItem key={day.id} value={day.id}>
-													{day.name} {day.description ? `- ${day.description}` : ''}
-												</SelectItem>
-											))
-										)}
-									</SelectContent>
-								</Select>
-							</FormControl>
-							<FormMessage />
-						</FormItem>
-					)}
-				/>
+									Add Exercise
+								</Button>
+							</div>
 
-				<FormField
-					control={form.control}
-					name="name"
-					render={({ field }) => (
-						<FormItem>
-							<FormLabel>Workout Name (Optional)</FormLabel>
-							<FormControl>
-								<Input placeholder="e.g., Chest Day, Leg Workout" {...field} />
-							</FormControl>
-							<FormMessage />
-						</FormItem>
-					)}
-				/>
+							{exerciseFields.map((field, index) => (
+								<div key={field.id} className="border rounded-lg p-4 space-y-4">
+									<ExerciseForm
+										control={control}
+										register={register}
+										exerciseIndex={index}
+										removeExercise={removeExercise}
+										canRemove={exerciseFields.length > 1}
+										getValues={getValues}
+										setValue={setValue}
+									/>
+									{errors.exercises?.[index]?.name && (
+										<p className="text-sm text-destructive mt-1">
+											{errors.exercises[index]?.name?.message}
+										</p>
+									)}
+								</div>
+							))}
+							{errors.exercises && (
+								<p className="text-sm text-destructive">
+									{errors.exercises.message}
+								</p>
+							)}
+						</div>
+					</div>
+				</CardContent>
+			</Card>
 
-				<Card>
-					<CardHeader className="flex flex-row items-center justify-between">
-						<CardTitle>Exercises</CardTitle>
-						<Button
-							type="button"
-							onClick={handleAppendExercise}
-							className="gap-2"
-						>
-							<Plus className="h-4 w-4" />
-							<span className="hidden sm:inline">Add Exercise</span>
-							<span className="sm:hidden">Add</span>
-						</Button>
-					</CardHeader>
-					<CardContent className="space-y-4 sm:space-y-6">
-						{exerciseFields.map((exerciseField, exerciseIndex) => (
-							<ExerciseForm
-								key={exerciseField.fieldId}
-								control={form.control}
-								register={form.register}
-								exerciseIndex={exerciseIndex}
-								removeExercise={removeExercise}
-								canRemove={exerciseFields.length > 1}
-								getValues={form.getValues}
-								setValue={form.setValue}
-							/>
-						))}
-						{form.formState.errors.exercises?.root?.message && (
-							<p className="text-sm font-medium text-destructive">
-								{form.formState.errors.exercises.root.message}
-							</p>
-						)}
-					</CardContent>
-				</Card>
-
-				<WorkoutActions
-					loading={loading}
-					cancelHref={
-						isEditing && initialData ? `/workout/${initialData.id}` : "/"
-					}
-					submitText={isEditing ? "Update Workout" : "Log Workout"}
-				/>
-			</form>
-		</Form>
+			<div className="flex justify-end gap-4">
+				<Button
+					type="button"
+					variant="outline"
+					onClick={() => router.push("/workout")}
+					disabled={isSubmitting}
+				>
+					Cancel
+				</Button>
+				<Button type="submit" disabled={isSubmitting}>
+					{isSubmitting ? "Saving..." : "Save Workout"}
+				</Button>
+			</div>
+		</form>
 	);
 }
