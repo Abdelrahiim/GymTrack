@@ -35,6 +35,7 @@ import { revalidatePath } from "next/cache"; // Added for server actions
 import { CreateLevelDialog } from "@/components/admin/CreateLevelDialog"; // New import
 import { UpdateLevelDialog } from "@/components/admin/UpdateLevelDialog"; // New import
 import { DeleteLevelDialog } from "@/components/admin/DeleteLevelDialog"; // New import
+import { LevelChangeForm } from "@/components/admin/LevelChangeForm"; // New import
 import { handlePromote, handleDemote } from "@/actions/userActions";
 
 // Helper function to get initials from name
@@ -191,31 +192,11 @@ export default async function UserPage({ params }: UserPageProps) {
 					</div>
 				</CardContent>
 				<CardFooter className="flex flex-col sm:flex-row gap-2 pt-6 border-t">
-					<form action={handlePromote.bind(null, user.id, user.currentLevelId, user.userLevelsData)} className="w-full sm:w-auto">
-						<Button
-							type="submit"
-							className="w-full sm:w-auto flex items-center"
-							disabled={
-								user.userLevelsData.length === 0 ||
-								(!!user.currentLevelId &&
-									user.userLevelsData.length > 0 &&
-									user.currentLevelId ===
-										user.userLevelsData[user.userLevelsData.length - 1].id)
-							}
-						>
-							<ArrowUpCircle className="mr-2 h-4 w-4" /> Promote
-						</Button>
-					</form>
-					<form action={handleDemote.bind(null, user.id, user.currentLevelId, user.userLevelsData)} className="w-full sm:w-auto">
-						<Button
-							type="submit"
-							variant="outline"
-							className="w-full sm:w-auto flex items-center"
-							disabled={!user.currentLevelId} // Demote button disabled if no current level ID.
-						>
-							<ArrowDownCircle className="mr-2 h-4 w-4" /> Demote
-						</Button>
-					</form>
+					<LevelChangeForm user={{
+						id: user.id,
+						currentLevelId: user.currentLevelId,
+						userLevelsData: user.userLevelsData
+					}} />
 				</CardFooter>
 			</Card>
 
