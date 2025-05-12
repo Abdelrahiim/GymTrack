@@ -35,7 +35,7 @@ import { revalidatePath } from "next/cache"; // Added for server actions
 import { CreateLevelDialog } from "@/components/admin/CreateLevelDialog"; // New import
 import { UpdateLevelDialog } from "@/components/admin/UpdateLevelDialog"; // New import
 import { DeleteLevelDialog } from "@/components/admin/DeleteLevelDialog"; // New import
-import { handlePromote, handleDemote } from "@/app/actions/userActions";
+import { handlePromote, handleDemote } from "@/actions/userActions";
 
 // Helper function to get initials from name
 const getInitials = (name?: string | null) => {
