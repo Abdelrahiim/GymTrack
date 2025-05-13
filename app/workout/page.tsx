@@ -76,6 +76,36 @@ export default async function WorkoutsPage({
 						<Button type="submit">Search</Button>
 					</form>
 
+					{/* If user has any workouts with level and workout day info, show quick links */}
+					{workouts.some(w => w.workoutDay?.level) && (
+						<div className="mb-6 bg-muted/20 p-4 rounded-lg">
+							<h3 className="text-sm font-medium mb-3">Your Training Programs</h3>
+							<div className="flex flex-wrap gap-2">
+								{Array.from(new Set(workouts
+									.filter(w => w.workoutDay?.level)
+									.map(w => w.workoutDay?.level?.name)))
+									.map(levelName => (
+										<div key={levelName} className="space-y-2">
+											<h4 className="text-xs font-medium text-muted-foreground ml-1">{levelName}</h4>
+											<div className="flex flex-wrap gap-1">
+												{Array.from(new Set(workouts
+													.filter(w => w.workoutDay?.level?.name === levelName)
+													.map(w => w.workoutDay?.name)))
+													.filter(Boolean)
+													.map(dayName => (
+														<Button key={dayName} variant="outline" size="sm" asChild className="h-7 text-xs px-2">
+															<Link href={`/levels/${encodeURIComponent(levelName || '')}/${encodeURIComponent(dayName || '')}`}>
+																{dayName}
+															</Link>
+														</Button>
+													))}
+											</div>
+										</div>
+									))}
+							</div>
+						</div>
+					)}
+
 					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 						{workouts.map((workout) => (
 							<WorkoutCard

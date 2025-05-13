@@ -118,3 +118,101 @@ export async function deleteLevelAction(levelId: string, userId: string) {
 		return { success: false, error: errorMessage };
 	}
 } 
+
+export async function getLevelWorkoutDayData(levelName: string, workoutDayName: string) {
+	try {
+		const session = await import("@/auth").then(mod => mod.auth());
+		
+		if (!session?.user?.id) {
+			throw new Error("Unauthorized");
+		}
+
+		// Find the level with the given name for the current user
+		const level = await prisma.level.findFirst({
+			where: {
+				name: levelName,
+				userId: session.user.id
+			},
+			include: {
+				workoutDays: {
+					where: {
+						name: workoutDayName
+					}
+				}
+			}
+		});
+
+		if (!level || level.workoutDays.length === 0) {
+			throw new Error("Level or workout day not found");
+		}
+
+		const workoutDay = level.workoutDays[0];
+
+		// Get the last 3 weeks of workouts for this workout day
+		const threeWeeksAgo = new Date();
+		threeWeeksAgo.setDate(threeWeeksAgo.getDate() - 21);
+
+		const workouts = await prisma.workout.findMany({
+			where: {
+				userId: session.user.id,
+				workoutDayId: workoutDay.id,
+				date: {
+					gte: threeWeeksAgo
+				}
+			},
+			include: {
+				exercises: {
+					include: {
+						sets: true
+					}
+				}
+			},
+			orderBy: {
+				date: 'asc'
+			}
+		});
+
+		// Process the workout data to extract exercise progress
+		const exerciseProgress: Record<string, { date: string; weight: number; reps: number; volume: number }[]> = {};
+
+		for (const workout of workouts) {
+			const workoutDate = workout.date.toISOString().split('T')[0];
+
+			for (const exercise of workout.exercises) {
+				if (!exerciseProgress[exercise.name]) {
+					exerciseProgress[exercise.name] = [];
+				}
+
+				// Get the max weight and total volume for this exercise in this workout
+				let maxWeight = 0;
+				let totalReps = 0;
+				let totalVolume = 0;
+
+				for (const set of exercise.sets) {
+					if (set.weight && set.weight > maxWeight) {
+						maxWeight = set.weight;
+					}
+					totalReps += set.reps;
+					totalVolume += set.reps * (set.weight || 0);
+				}
+
+				exerciseProgress[exercise.name].push({
+					date: workoutDate,
+					weight: maxWeight,
+					reps: totalReps,
+					volume: totalVolume
+				});
+			}
+		}
+
+		return {
+			level,
+			workoutDay,
+			workouts,
+			exerciseProgress
+		};
+	} catch (error) {
+		console.error("Error fetching level workout day data:", error);
+		throw error;
+	}
+} 

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, Dumbbell } from "lucide-react";
+import { ArrowRight, Dumbbell, BarChart3 } from "lucide-react";
 import { WeightUnit } from "@/lib/generated/prisma/client";
 
 interface Set {
@@ -109,6 +109,17 @@ export function WorkoutCard({ workout }: WorkoutCardProps) {
 							<Badge variant="secondary" className="mt-1 ml-2">
 								{workout.level.name}
 							</Badge>
+						)}
+						{workout.level && workout.workoutDay && (
+							<div className="mt-2">
+								<Link 
+									href={`/levels/${encodeURIComponent(workout.level.name)}/${encodeURIComponent(workout.workoutDay.name)}`}
+									className="text-xs text-primary hover:underline flex items-center"
+								>
+									<BarChart3 className="h-3 w-3 mr-1" />
+									View progress
+								</Link>
+							</div>
 						)}
 					</div>
 					<Button

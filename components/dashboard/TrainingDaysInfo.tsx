@@ -2,21 +2,34 @@
 
 import { useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dumbbell, Calendar, CheckCircle, HelpCircle } from "lucide-react";
+import { Dumbbell, Calendar, CheckCircle, HelpCircle, BarChart3 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 import { format, isToday, isSameDay, startOfWeek, addDays, isAfter, isSameWeek, eachDayOfInterval, subWeeks } from "date-fns";
 
 interface WorkoutDay {
   id: string;
   dayNumber: number;
   name: string;
+  level?: {
+    id: string;
+    name: string;
+  } | null;
 }
 
 interface Workout {
   id: string;
   date: Date;
   name: string | null;
-  workoutDay?: { id: string; name: string } | null;
+  workoutDay?: { 
+    id: string; 
+    name: string;
+    level?: {
+      id: string;
+      name: string;
+    } | null;
+  } | null;
 }
 
 interface TrainingDaysInfoProps {
@@ -183,6 +196,19 @@ export function TrainingDaysInfo({ workoutDays, recentWorkouts, daysPerWeek }: T
                       </div>
                     ) : (
                       <div className="text-sm text-muted-foreground">Rest day</div>
+                    )}
+                    
+                    {/* Add link to level workout day page if applicable */}
+                    {(day.isCompletedThisWeek || day.isActiveTrainingDay) && 
+                     day.workoutName && 
+                     patterns[day.dayNumber].lastWorkout?.workoutDay?.level && (
+                      <Link 
+                        href={`/levels/${encodeURIComponent(patterns[day.dayNumber].lastWorkout?.workoutDay?.level?.name || '')}/${encodeURIComponent(patterns[day.dayNumber].lastWorkout?.workoutDay?.name || '')}`}
+                        className="text-xs text-primary hover:underline flex items-center mt-1"
+                      >
+                        <BarChart3 className="h-3 w-3 mr-1" />
+                        View progress
+                      </Link>
                     )}
                   </div>
                 </div>
