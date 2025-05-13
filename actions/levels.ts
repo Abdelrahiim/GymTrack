@@ -216,3 +216,137 @@ export async function getLevelWorkoutDayData(levelName: string, workoutDayName: 
 		throw error;
 	}
 } 
+
+export async function getAdminLevelWorkoutDayData(userId: string, levelName: string, workoutDayName: string) {
+	try {
+		// Find the level with the given name for the specified user
+		const level = await prisma.level.findFirst({
+			where: {
+				name: levelName,
+				userId: userId
+			},
+			include: {
+				workoutDays: {
+					where: {
+						name: workoutDayName
+					}
+				},
+				user: {
+					select: {
+						id: true,
+						name: true,
+						email: true,
+						image: true
+					}
+				}
+			}
+		});
+
+		if (!level || level.workoutDays.length === 0) {
+			throw new Error("Level or workout day not found");
+		}
+
+		const workoutDay = level.workoutDays[0];
+
+		// Get all workouts for this workout day
+		const workouts = await prisma.workout.findMany({
+			where: {
+				userId: userId,
+				workoutDayId: workoutDay.id,
+			},
+			include: {
+				exercises: {
+					include: {
+						sets: true
+					}
+				}
+			},
+			orderBy: {
+				date: 'asc'
+			}
+		});
+
+		// Process the workout data to extract exercise progress
+		const exerciseProgress: Record<string, { date: string; weight: number; reps: number; volume: number }[]> = {};
+
+		for (const workout of workouts) {
+			const workoutDate = workout.date.toISOString().split('T')[0];
+
+			for (const exercise of workout.exercises) {
+				if (!exerciseProgress[exercise.name]) {
+					exerciseProgress[exercise.name] = [];
+				}
+
+				// Get the max weight and total volume for this exercise in this workout
+				let maxWeight = 0;
+				let totalReps = 0;
+				let totalVolume = 0;
+
+				for (const set of exercise.sets) {
+					if (set.weight && set.weight > maxWeight) {
+						maxWeight = set.weight;
+					}
+					totalReps += set.reps;
+					totalVolume += set.reps * (set.weight || 0);
+				}
+
+				exerciseProgress[exercise.name].push({
+					date: workoutDate,
+					weight: maxWeight,
+					reps: totalReps,
+					volume: totalVolume
+				});
+			}
+		}
+
+		// Get user's overall progress data across all workouts
+		const overallStats = await prisma.workout.aggregate({
+			where: {
+				userId: userId,
+			},
+			_count: {
+				id: true,
+			},
+		});
+
+		const exerciseStats = await prisma.exercise.aggregate({
+			where: {
+				workout: {
+					userId: userId,
+				},
+			},
+			_count: {
+				id: true,
+			},
+		});
+
+		const setStats = await prisma.set.aggregate({
+			where: {
+				exercise: {
+					workout: {
+						userId: userId,
+					},
+				},
+			},
+			_count: {
+				id: true,
+			},
+		});
+
+		return {
+			level,
+			workoutDay,
+			workouts,
+			exerciseProgress,
+			stats: {
+				totalWorkouts: overallStats._count.id,
+				totalExercises: exerciseStats._count.id,
+				totalSets: setStats._count.id,
+				workoutsForThisDay: workouts.length,
+			}
+		};
+	} catch (error) {
+		console.error("Error fetching admin level workout day data:", error);
+		throw error;
+	}
+} 
