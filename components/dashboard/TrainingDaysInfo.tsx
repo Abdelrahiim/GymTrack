@@ -204,7 +204,7 @@ export function TrainingDaysInfo({ workoutDays, recentWorkouts, daysPerWeek }: T
                      patterns[day.dayNumber].lastWorkout?.workoutDay?.level && (
                       <Link 
                         href={`/levels/${encodeURIComponent(patterns[day.dayNumber].lastWorkout?.workoutDay?.level?.name || '')}/${encodeURIComponent(patterns[day.dayNumber].lastWorkout?.workoutDay?.name || '')}`}
-                        className="text-xs text-primary hover:underline flex items-center mt-1"
+                        className="text-xs text-primary hover:underline flex items-center mt-1 hover:bg-primary/10 rounded-sm px-1 py-0.5 transition-colors"
                       >
                         <BarChart3 className="h-3 w-3 mr-1" />
                         View progress

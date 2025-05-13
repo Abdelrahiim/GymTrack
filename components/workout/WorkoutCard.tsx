@@ -114,10 +114,10 @@ export function WorkoutCard({ workout }: WorkoutCardProps) {
 							<div className="mt-2">
 								<Link 
 									href={`/levels/${encodeURIComponent(workout.level.name)}/${encodeURIComponent(workout.workoutDay.name)}`}
-									className="text-xs text-primary hover:underline flex items-center"
+									className="flex items-center text-xs px-2 py-1 rounded-md bg-primary/10 hover:bg-primary/20 text-primary transition-colors w-fit"
 								>
-									<BarChart3 className="h-3 w-3 mr-1" />
-									View progress
+									<BarChart3 className="h-3 w-3 mr-1.5" />
+									View Progress
 								</Link>
 							</div>
 						)}

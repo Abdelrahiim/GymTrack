@@ -119,6 +119,16 @@ export default async function WorkoutPage({ params }: WorkoutPageProps) {
                     </Badge>
                   </div>
                 )}
+                
+                {workout.workoutDay?.level && (
+                  <Link 
+                    href={`/levels/${encodeURIComponent(workout.workoutDay.level.name)}/${encodeURIComponent(workout.workoutDay.name)}`}
+                    className="flex items-center text-xs px-3 py-1 rounded-md border border-primary/30 bg-primary/5 hover:bg-primary/10 text-primary transition-colors"
+                  >
+                    <BarChart3 className="h-3.5 w-3.5 mr-1.5" />
+                    View Training Progress
+                  </Link>
+                )}
               </div>
             </div>
           </CardHeader>

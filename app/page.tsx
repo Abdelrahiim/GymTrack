@@ -22,6 +22,7 @@ import {
 	TrendingUp,
 	Flame,
 	Award,
+	BarChart3,
 } from "lucide-react";
 import {
 	formatDistanceToNow,
@@ -32,6 +33,37 @@ import {
 } from "date-fns";
 import { ConsistencyChart } from "@/components/dashboard/ConsistencyChart";
 import { TrainingDaysInfo } from "@/components/dashboard/TrainingDaysInfo";
+
+// Define the necessary types
+interface WorkoutSet {
+	id?: string;
+	reps: number;
+	weight: number;
+	weightUnit?: string;
+}
+
+interface WorkoutExercise {
+	name: string;
+	sets: WorkoutSet[];
+}
+
+interface WorkoutDay {
+	id: string;
+	name: string;
+	dayNumber: number;
+	level?: {
+		id: string;
+		name: string;
+	} | null;
+}
+
+interface Workout {
+	id: string;
+	date: Date | string;
+	name: string | null;
+	workoutDay?: WorkoutDay | null;
+	exercises: WorkoutExercise[];
+}
 
 export default async function Dashboard() {
 	const dashboardData = await getUserLevelInfo();
@@ -201,6 +233,15 @@ export default async function Dashboard() {
 																	: dayWorkoutName || "Rest"}
 														</div>
 													)}
+													{/* Add link to progress page for completed workouts */}
+													{isCompleted && dayWorkout?.workoutDay?.name && (
+														<Link 
+															href={`/workout/${dayWorkout.id}`}
+															className="mt-1 flex justify-center"
+														>
+															<BarChart3 className="h-3 w-3 text-primary hover:text-primary/80" />
+														</Link>
+													)}
 												</div>
 											);
 										})}
@@ -291,118 +332,224 @@ export default async function Dashboard() {
 			)}
 
 			{/* Stats & Recent Workouts */}
-			<div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-				{/* Stats Cards */}
-				<div className="grid grid-cols-2 gap-4 md:flex md:flex-col">
-					<Card>
-						<CardHeader className="pb-2">
-							<CardTitle className="text-sm font-medium">
-								Workout Streak
-							</CardTitle>
-						</CardHeader>
-						<CardContent>
-							<div className="flex justify-between items-center">
+			<div className="grid grid-cols-1 gap-4 sm:gap-6">
+				{/* Stats and Programs Row */}
+				<div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+					{/* Left Column: Stats Cards */}
+					<div className="grid grid-cols-2 gap-3 sm:gap-4">
+						<Card className="p-2 sm:p-4">
+							<CardHeader className="pb-1 sm:pb-2 p-2 sm:p-4">
+								<CardTitle className="text-xs sm:text-sm font-medium">
+									Workout Streak
+								</CardTitle>
+							</CardHeader>
+							<CardContent className="p-2 sm:p-4 pt-0">
+								<div className="flex justify-between items-center">
+									<div className="flex items-center">
+										<Flame className="h-4 w-4 sm:h-5 sm:w-5 text-orange-500 mr-1 sm:mr-2" />
+										<span className="text-xl sm:text-2xl font-bold">
+											{stats.currentStreak}
+										</span>
+									</div>
+									<div className="text-[10px] sm:text-xs text-muted-foreground">
+										<span className="font-medium">
+											Best: {stats.longestStreak}
+										</span>
+									</div>
+								</div>
+							</CardContent>
+						</Card>
+
+						<Card className="p-2 sm:p-4">
+							<CardHeader className="pb-1 sm:pb-2 p-2 sm:p-4">
+								<CardTitle className="text-xs sm:text-sm font-medium">
+									Total Workouts
+								</CardTitle>
+							</CardHeader>
+							<CardContent className="p-2 sm:p-4 pt-0">
 								<div className="flex items-center">
-									<Flame className="h-5 w-5 text-orange-500 mr-2" />
-									<span className="text-2xl font-bold">
-										{stats.currentStreak}
+									<Dumbbell className="h-4 w-4 sm:h-5 sm:w-5 text-primary mr-1 sm:mr-2" />
+									<span className="text-xl sm:text-2xl font-bold">
+										{stats.totalWorkouts}
 									</span>
 								</div>
-								<div className="text-xs text-muted-foreground">
-									<span className="font-medium">
-										Best: {stats.longestStreak}
+							</CardContent>
+						</Card>
+
+						<Card className="p-2 sm:p-4">
+							<CardHeader className="pb-1 sm:pb-2 p-2 sm:p-4">
+								<CardTitle className="text-xs sm:text-sm font-medium">
+									Total Exercises
+								</CardTitle>
+							</CardHeader>
+							<CardContent className="p-2 sm:p-4 pt-0">
+								<div className="flex items-center">
+									<LineChart className="h-4 w-4 sm:h-5 sm:w-5 text-indigo-500 mr-1 sm:mr-2" />
+									<span className="text-xl sm:text-2xl font-bold">
+										{stats.totalExercises}
 									</span>
 								</div>
-							</div>
-						</CardContent>
-					</Card>
+							</CardContent>
+						</Card>
 
-					<Card>
-						<CardHeader className="pb-2">
-							<CardTitle className="text-sm font-medium">
-								Total Workouts
-							</CardTitle>
-						</CardHeader>
-						<CardContent>
-							<div className="flex items-center">
-								<Dumbbell className="h-5 w-5 text-primary mr-2" />
-								<span className="text-2xl font-bold">
-									{stats.totalWorkouts}
-								</span>
-							</div>
-						</CardContent>
-					</Card>
-
-					<Card>
-						<CardHeader className="pb-2">
-							<CardTitle className="text-sm font-medium">
-								Total Exercises
-							</CardTitle>
-						</CardHeader>
-						<CardContent>
-							<div className="flex items-center">
-								<LineChart className="h-5 w-5 text-indigo-500 mr-2" />
-								<span className="text-2xl font-bold">
-									{stats.totalExercises}
-								</span>
-							</div>
-						</CardContent>
-					</Card>
-
-					<Card>
-						<CardHeader className="pb-2">
-							<CardTitle className="text-sm font-medium">Total Sets</CardTitle>
-						</CardHeader>
-						<CardContent>
-							<div className="flex items-center">
-								<TrendingUp className="h-5 w-5 text-green-500 mr-2" />
-								<span className="text-2xl font-bold">{stats.totalSets}</span>
-							</div>
-						</CardContent>
-					</Card>
+						<Card className="p-2 sm:p-4">
+							<CardHeader className="pb-1 sm:pb-2 p-2 sm:p-4">
+								<CardTitle className="text-xs sm:text-sm font-medium">
+									Total Sets
+								</CardTitle>
+							</CardHeader>
+							<CardContent className="p-2 sm:p-4 pt-0">
+								<div className="flex items-center">
+									<TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 text-green-500 mr-1 sm:mr-2" />
+									<span className="text-xl sm:text-2xl font-bold">
+										{stats.totalSets}
+									</span>
+								</div>
+							</CardContent>
+						</Card>
+					</div>
+					
+					{/* Right Column: Training Programs (if exists) */}
+					{currentLevel ? (
+						<Card>
+							<CardHeader className="pb-2">
+								<CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+									<BarChart3 className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+									Training Programs
+								</CardTitle>
+							</CardHeader>
+							<CardContent>
+								<div className="space-y-3">
+									<p className="text-xs sm:text-sm text-muted-foreground">
+										View your progress on each training day
+									</p>
+									<div className="space-y-2 max-h-[200px] sm:max-h-[300px] overflow-y-auto pr-1 scrollbar-thin">
+										{currentLevel.workoutDays.map((day) => (
+											<Link
+												href={`/levels/${encodeURIComponent(currentLevel.name)}/${encodeURIComponent(day.name)}`}
+												key={day.id}
+												className="flex items-center justify-between p-1.5 sm:p-2 rounded-md border hover:bg-accent hover:border-primary/30 transition-colors"
+											>
+												<div className="flex items-center">
+													<Dumbbell className="h-3 w-3 sm:h-4 sm:w-4 mr-1.5 sm:mr-2 text-primary" />
+													<span className="text-xs sm:text-sm truncate max-w-[120px] sm:max-w-none">{day.name}</span>
+												</div>
+												<ChevronRight className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground flex-shrink-0" />
+											</Link>
+										))}
+									</div>
+								</div>
+							</CardContent>
+						</Card>
+					) : (
+						// If no Training Programs, show Recent Workouts in this column on large screens
+						<Card className="lg:block hidden">
+							<CardHeader className="pb-2">
+								<div className="flex justify-between items-center">
+									<CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+										<Award className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+										Recent Workouts
+									</CardTitle>
+									<Link
+										href="/workout"
+										className="text-xs sm:text-sm text-primary flex items-center"
+									>
+										View all <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4 ml-1" />
+									</Link>
+								</div>
+							</CardHeader>
+							<CardContent>
+								{recentWorkouts.length > 0 ? (
+									<div className="space-y-3 sm:space-y-4">
+										{recentWorkouts.slice(0, 2).map((workout) => (
+											<Link
+												href={`/workout/${workout.id}`}
+												key={workout.id}
+												className="block"
+											>
+												<div className="flex justify-between items-center p-2 sm:p-3 rounded-lg border hover:bg-accent hover:border-primary/30 transition-colors">
+													<div className="max-w-[70%]">
+														<h3 className="font-medium text-sm sm:text-base truncate">
+															{workout.name ||
+																workout.workoutDay?.name ||
+																"Unnamed Workout"}
+														</h3>
+														<div className="text-[10px] sm:text-xs text-muted-foreground flex items-center mt-1 flex-wrap">
+															<CalendarDays className="h-3 w-3 sm:h-3.5 sm:w-3.5 mr-1" />
+															{format(new Date(workout.date), "PPP")} ·{" "}
+															{formatDistanceToNow(new Date(workout.date), {
+																addSuffix: true,
+															})}
+														</div>
+													</div>
+													<div className="text-[10px] sm:text-xs whitespace-nowrap">
+														<span className="font-medium">
+															{workout.exercises.length}
+														</span>{" "}
+														exercises
+													</div>
+												</div>
+											</Link>
+										))}
+									</div>
+								) : (
+									<div className="text-center py-6 sm:py-8">
+										<Dumbbell className="h-8 w-8 sm:h-12 sm:w-12 mx-auto text-muted-foreground mb-2 sm:mb-3" />
+										<h3 className="text-base sm:text-lg font-medium mb-1 sm:mb-2">No workouts yet</h3>
+										<p className="text-xs sm:text-sm text-muted-foreground mb-3 sm:mb-4">
+											Start tracking your workouts to see your progress
+										</p>
+										<Button size="sm" asChild>
+											<Link href="/workout/new">Log Your First Workout</Link>
+										</Button>
+									</div>
+								)}
+							</CardContent>
+						</Card>
+					)}
 				</div>
-
-				{/* Recent Workouts */}
-				<Card className="md:col-span-2">
+					
+				{/* Recent Workouts (shown on all screen sizes when Training Programs exist, and only on mobile/tablet when it doesn't) */}
+				<Card className={currentLevel ? "" : "lg:hidden"}>
 					<CardHeader className="pb-2">
 						<div className="flex justify-between items-center">
-							<CardTitle className="flex items-center gap-2">
-								<Award className="h-5 w-5 text-primary" />
+							<CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+								<Award className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
 								Recent Workouts
 							</CardTitle>
 							<Link
 								href="/workout"
-								className="text-sm text-primary flex items-center"
+								className="text-xs sm:text-sm text-primary flex items-center"
 							>
-								View all <ChevronRight className="h-4 w-4 ml-1" />
+								View all <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4 ml-1" />
 							</Link>
 						</div>
 					</CardHeader>
 					<CardContent>
 						{recentWorkouts.length > 0 ? (
-							<div className="space-y-4">
-								{recentWorkouts.slice(0, 4).map((workout) => (
+							<div className="space-y-3 sm:space-y-4">
+								{recentWorkouts.slice(0, 3).map((workout) => (
 									<Link
 										href={`/workout/${workout.id}`}
 										key={workout.id}
 										className="block"
 									>
-										<div className="flex justify-between items-center p-3 rounded-lg border hover:bg-accent hover:border-primary/30 transition-colors">
-											<div>
-												<h3 className="font-medium">
+										<div className="flex justify-between items-center p-2 sm:p-3 rounded-lg border hover:bg-accent hover:border-primary/30 transition-colors">
+											<div className="max-w-[70%]">
+												<h3 className="font-medium text-sm sm:text-base truncate">
 													{workout.name ||
 														workout.workoutDay?.name ||
 														"Unnamed Workout"}
 												</h3>
-												<div className="text-sm text-muted-foreground flex items-center mt-1">
-													<CalendarDays className="h-3.5 w-3.5 mr-1" />
+												<div className="text-[10px] sm:text-xs text-muted-foreground flex items-center mt-1 flex-wrap">
+													<CalendarDays className="h-3 w-3 sm:h-3.5 sm:w-3.5 mr-1" />
 													{format(new Date(workout.date), "PPP")} ·{" "}
 													{formatDistanceToNow(new Date(workout.date), {
 														addSuffix: true,
 													})}
 												</div>
 											</div>
-											<div className="text-sm">
+											<div className="text-[10px] sm:text-xs whitespace-nowrap">
 												<span className="font-medium">
 													{workout.exercises.length}
 												</span>{" "}
@@ -413,13 +560,13 @@ export default async function Dashboard() {
 								))}
 							</div>
 						) : (
-							<div className="text-center py-8">
-								<Dumbbell className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
-								<h3 className="text-lg font-medium mb-2">No workouts yet</h3>
-								<p className="text-sm text-muted-foreground mb-4">
+							<div className="text-center py-6 sm:py-8">
+								<Dumbbell className="h-8 w-8 sm:h-12 sm:w-12 mx-auto text-muted-foreground mb-2 sm:mb-3" />
+								<h3 className="text-base sm:text-lg font-medium mb-1 sm:mb-2">No workouts yet</h3>
+								<p className="text-xs sm:text-sm text-muted-foreground mb-3 sm:mb-4">
 									Start tracking your workouts to see your progress
 								</p>
-								<Button asChild>
+								<Button size="sm" asChild>
 									<Link href="/workout/new">Log Your First Workout</Link>
 								</Button>
 							</div>
