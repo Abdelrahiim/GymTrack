@@ -91,9 +91,12 @@ export function WorkoutForm({ workoutDays }: WorkoutFormProps) {
 	};
 
 	return (
-		<form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+		<form
+			onSubmit={handleSubmit(onSubmit)}
+			className="space-y-4 sm:space-y-6"
+		>
 			<Card>
-				<CardContent className="pt-6">
+				<CardContent className="pt-4 sm:pt-6">
 					<div className="space-y-4">
 						<div>
 							<Label htmlFor="workoutDay">Workout Type</Label>
@@ -107,7 +110,7 @@ export function WorkoutForm({ workoutDays }: WorkoutFormProps) {
 								}}
 								value={selectedWorkoutDayId}
 							>
-								<SelectTrigger className="w-full">
+								<SelectTrigger className="w-full mt-1.5">
 									<SelectValue placeholder="Select a workout from your level" />
 								</SelectTrigger>
 								<SelectContent>
@@ -120,8 +123,8 @@ export function WorkoutForm({ workoutDays }: WorkoutFormProps) {
 							</Select>
 						</div>
 
-						<div className="space-y-6">
-							<div className="flex items-center justify-between">
+						<div className="space-y-4 sm:space-y-6">
+							<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-4">
 								<h3 className="text-lg font-medium">Exercises</h3>
 								<Button
 									type="button"
@@ -134,13 +137,14 @@ export function WorkoutForm({ workoutDays }: WorkoutFormProps) {
 										})
 									}
 									variant="outline"
+									className="w-full sm:w-auto"
 								>
 									Add Exercise
 								</Button>
 							</div>
 
 							{exerciseFields.map((field, index) => (
-								<div key={field.id} className="border rounded-lg p-4 space-y-4">
+								<div key={field.id} className="border rounded-lg p-3 sm:p-4 space-y-3 sm:space-y-4">
 									<ExerciseForm
 										control={control}
 										register={register}
@@ -167,16 +171,21 @@ export function WorkoutForm({ workoutDays }: WorkoutFormProps) {
 				</CardContent>
 			</Card>
 
-			<div className="flex justify-end gap-4">
+			<div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-4 mt-4 sm:mt-0">
 				<Button
 					type="button"
 					variant="outline"
 					onClick={() => router.push("/workout")}
 					disabled={isSubmitting}
+					className="w-full sm:w-auto"
 				>
 					Cancel
 				</Button>
-				<Button type="submit" disabled={isSubmitting}>
+				<Button
+					type="submit"
+					disabled={isSubmitting}
+					className="w-full sm:w-auto"
+				>
 					{isSubmitting ? "Saving..." : "Save Workout"}
 				</Button>
 			</div>

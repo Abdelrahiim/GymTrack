@@ -16,7 +16,7 @@ export default async function NewWorkout() {
   const workoutDays = await getWorkoutDayNames();
 
   return (
-    <div className="container mx-auto py-6 space-y-6">
+    <div className="container mx-auto px-4 py-4 sm:py-6 space-y-4 sm:space-y-6">
       <WorkoutHeader
         title="New Workout"
         description="Create a new workout for today"
