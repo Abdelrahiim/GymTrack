@@ -21,6 +21,7 @@ interface ProgressDataPoint {
   weight: number;
   reps: number;
   volume: number;
+  weightUnit?: string;
 }
 
 interface ExerciseProgressChartProps {
@@ -112,8 +113,7 @@ export function ExerciseProgressChart({
   // Chart configuration
   const chartTypeConfig = {
     weight: {
-      label: "Weight (kg)",
-      suffix: "kg",
+      label: "Weight",
       icon: Weight,
     },
     reps: {
@@ -122,8 +122,7 @@ export function ExerciseProgressChart({
       icon: Repeat,
     },
     volume: {
-      label: "Volume (kg)",
-      suffix: "kg",
+      label: "Volume",
       icon: Activity,
     },
   };
@@ -165,7 +164,34 @@ export function ExerciseProgressChart({
                     tick={{ fontSize: 12 }}
                     domain={[0, 'auto']}
                     label={{ 
-                      value: chartTypeConfig[type as keyof typeof chartTypeConfig].label, 
+                      value: type === "reps" 
+                        ? chartTypeConfig[type as keyof typeof chartTypeConfig].label
+                        : (() => {
+                            // For weight/volume, find the most common unit
+                            if (showMultipleExercises) {
+                              // Aggregate all units across exercises
+                              const allUnits: Record<string, number> = {};
+                              for (const name of exerciseNames) {
+                                const exerciseData = exerciseProgressData[name] || [];
+                                for (const point of exerciseData) {
+                                  if (point.weightUnit) {
+                                    allUnits[point.weightUnit] = (allUnits[point.weightUnit] || 0) + 1;
+                                  }
+                                }
+                              }
+                              // Find the most common unit
+                              const mostCommonUnit = Object.entries(allUnits)
+                                .sort((a, b) => b[1] - a[1])[0]?.[0] || "";
+                              return `${chartTypeConfig[type as keyof typeof chartTypeConfig].label}${mostCommonUnit ? ` (${mostCommonUnit})` : ""}`;
+                            }
+                            
+                            // For single exercise, use the first available unit
+                            const exerciseName = exerciseNames[0];
+                            const exerciseData = exerciseProgressData[exerciseName] || [];
+                            const dataPointWithUnit = exerciseData.find(point => point.weightUnit);
+                            const unit = dataPointWithUnit?.weightUnit || "";
+                            return `${chartTypeConfig[type as keyof typeof chartTypeConfig].label}${unit ? ` (${unit})` : ""}`;
+                          })(), 
                       angle: -90, 
                       position: 'insideLeft',
                       style: { textAnchor: 'middle' },
@@ -182,6 +208,7 @@ export function ExerciseProgressChart({
                       // Extract the actual exercise name from the dataKey
                       let exerciseName = name;
                       let metricType = type;
+                      let weightUnit = "";
                       
                       if (showMultipleExercises) {
                         const parts = name.split('_');
@@ -191,8 +218,16 @@ export function ExerciseProgressChart({
                         }
                       }
                       
-                      const suffix = chartTypeConfig[metricType as keyof typeof chartTypeConfig].suffix;
-                      return [`${value}${suffix}`, exerciseName];
+                      // Get weight unit for the exercise
+                      if (metricType === "weight" || metricType === "volume") {
+                        // Find the most recent data point for this exercise that has a weight unit
+                        const exerciseData = exerciseProgressData[exerciseName] || [];
+                        const dataPointWithUnit = exerciseData.find(point => point.weightUnit);
+                        weightUnit = dataPointWithUnit?.weightUnit || "";
+                      }
+                      
+                      const suffix = metricType === "reps" ? "" : (weightUnit || "");
+                      return [`${value}${suffix ? ` ${suffix}` : ""}`, exerciseName];
                     }}
                     labelFormatter={(label) => `Date: ${label}`}
                   />
