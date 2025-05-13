@@ -26,10 +26,10 @@ import { format, formatDistance } from "date-fns";
 import type { WeightUnit } from "@/lib/prisma";
 
 interface LevelWorkoutDayPageProps {
-	params: {
+	params: Promise<	{
 		levelName: string;
 		workoutDayName: string;
-	};
+	}>;
 }
 
 export default async function LevelWorkoutDayPage({
@@ -41,7 +41,7 @@ export default async function LevelWorkoutDayPage({
 		redirect("/auth/signin");
 	}
 
-	const { levelName, workoutDayName } = params;
+	const { levelName, workoutDayName } = await Promise.resolve(params);
 	const decodedLevelName = decodeURIComponent(levelName);
 	const decodedWorkoutDayName = decodeURIComponent(workoutDayName);
 

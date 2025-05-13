@@ -24,9 +24,9 @@ import { format } from "date-fns";
 import { WeightUnit } from "@/lib/generated/prisma/client";
 
 interface WorkoutPageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export default async function WorkoutPage({ params }: WorkoutPageProps) {
@@ -35,8 +35,9 @@ export default async function WorkoutPage({ params }: WorkoutPageProps) {
   if (!session) {
     redirect("/auth/signin");
   }
+  const { id } = await params;
 
-  const workout = await getWorkoutById(params.id);
+  const workout = await getWorkoutById(id);
 
   if (!workout) {
     notFound();
