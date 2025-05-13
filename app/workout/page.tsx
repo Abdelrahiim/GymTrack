@@ -84,6 +84,14 @@ export default async function WorkoutsPage({
 									id: workout.id,
 									date: format(new Date(workout.date), "yyyy-MM-dd"),
 									name: workout.name,
+									level: workout.workoutDay?.level ? {
+										id: workout.workoutDay.level.id,
+										name: workout.workoutDay.level.name,
+									} : null,
+									workoutDay: workout.workoutDay ? {
+										id: workout.workoutDay.id,
+										name: workout.workoutDay.name,
+									} : null,
 									exercises: workout.exercises.map((ex) => ({
 										name: ex.name,
 										sets: ex.sets.map((set) => ({

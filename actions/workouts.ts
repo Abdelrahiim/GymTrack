@@ -20,6 +20,11 @@ type WorkoutWithDetails = Prisma.WorkoutGetPayload<{
 				image: true;
 			};
 		};
+		workoutDay: {
+			include: {
+				level: true;
+			};
+		};
 	};
 }>;
 
@@ -144,6 +149,11 @@ export async function getWorkouts({
 						image: true,
 					},
 				},
+				workoutDay: {
+					include: {
+						level: true,
+					},
+				},
 			},
 			orderBy: {
 				date: "desc",
@@ -194,6 +204,11 @@ export async function getLastSevenDaysWorkouts(): Promise<{
 				select: {
 					name: true,
 					image: true,
+				},
+			},
+			workoutDay: {
+				include: {
+					level: true,
 				},
 			},
 		},
@@ -378,4 +393,43 @@ export async function getWorkoutDayNames() {
 
 	// Extract the names from workout days and ensure they're not null
 	return user.currentLevel.workoutDays
+}
+
+// Get a single workout by ID
+export async function getWorkoutById(id: string): Promise<WorkoutWithDetails | null> {
+	const session = await auth();
+
+	if (!session?.user) {
+		redirect("/auth/signin");
+	}
+
+	const workout = await prisma.workout.findUnique({
+		where: {
+			id,
+			userId: session.user.id
+		},
+		include: {
+			exercises: {
+				include: {
+					sets: true,
+				},
+				orderBy: {
+					createdAt: "asc",
+				},
+			},
+			user: {
+				select: {
+					name: true,
+					image: true,
+				},
+			},
+			workoutDay: {
+				include: {
+					level: true,
+				},
+			},
+		},
+	});
+
+	return workout;
 }

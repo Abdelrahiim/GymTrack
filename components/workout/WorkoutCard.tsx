@@ -32,6 +32,14 @@ interface WorkoutCardProps {
 		id: string;
 		date: string;
 		name: string | null;
+		level?: {
+			name: string;
+			id: string;
+		} | null;
+		workoutDay?: {
+			name: string;
+			id: string;
+		} | null;
 		exercises: Array<{
 			name: string;
 			sets: Array<{
@@ -92,6 +100,16 @@ export function WorkoutCard({ workout }: WorkoutCardProps) {
 						<p className="text-sm text-muted-foreground">
 							{format(new Date(workout.date), "EEEE, MMMM d, yyyy")}
 						</p>
+						{workout.workoutDay && (
+							<Badge variant="outline" className="mt-1">
+								{workout.workoutDay.name}
+							</Badge>
+						)}
+						{workout.level && (
+							<Badge variant="secondary" className="mt-1 ml-2">
+								{workout.level.name}
+							</Badge>
+						)}
 					</div>
 					<Button
 						asChild
