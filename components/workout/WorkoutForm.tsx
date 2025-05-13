@@ -5,7 +5,7 @@ import { useForm, useFieldArray } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { createWorkout } from "@/actions/workouts";
+import { createWorkout, updateWorkout } from "@/actions/workouts";
 import { ExerciseForm } from "./ExerciseForm";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -23,14 +23,33 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 
+// Define an initial workout interface
+interface InitialWorkout {
+	id: string;
+	date: Date;
+	name: string;
+	workoutDayId: string;
+	exercises: {
+		name: string;
+		sets: {
+			reps: number;
+			weight: number;
+			weightUnit: WeightUnit;
+		}[];
+	}[];
+}
+
 type WorkoutFormProps = {
 	workoutDays: WorkoutDay[];
+	initialWorkout?: InitialWorkout;
 };
 
-export function WorkoutForm({ workoutDays }: WorkoutFormProps) {
+export function WorkoutForm({ workoutDays, initialWorkout }: WorkoutFormProps) {
 	const router = useRouter();
 	const [isSubmitting, setIsSubmitting] = useState(false);
-	const [selectedWorkoutDayId, setSelectedWorkoutDayId] = useState<string>("");
+	const [selectedWorkoutDayId, setSelectedWorkoutDayId] = useState<string>(
+		initialWorkout?.workoutDayId || "",
+	);
 
 	const {
 		register,
@@ -41,15 +60,20 @@ export function WorkoutForm({ workoutDays }: WorkoutFormProps) {
 		formState: { errors },
 	} = useForm<WorkoutFormValues>({
 		resolver: zodResolver(workoutSchema),
-		defaultValues: {
-			name: "",
-			exercises: [
-				{
+		defaultValues: initialWorkout
+			? {
+					name: initialWorkout.name,
+					exercises: initialWorkout.exercises,
+				}
+			: {
 					name: "",
-					sets: [{ reps: 10, weight: 0, weightUnit: WeightUnit.KG }],
+					exercises: [
+						{
+							name: "",
+							sets: [{ reps: 10, weight: 0, weightUnit: WeightUnit.KG }],
+						},
+					],
 				},
-			],
-		},
 	});
 
 	const {
@@ -64,7 +88,8 @@ export function WorkoutForm({ workoutDays }: WorkoutFormProps) {
 	const onSubmit = async (data: WorkoutFormValues) => {
 		setIsSubmitting(true);
 		try {
-			// Set today's date without time component
+			// Set today's date without time component (for new workouts)
+			// or use the original date (for updates)
 			const today = new Date();
 			today.setHours(0, 0, 0, 0);
 
@@ -73,15 +98,25 @@ export function WorkoutForm({ workoutDays }: WorkoutFormProps) {
 				(day) => day.id === selectedWorkoutDayId,
 			);
 
-			// Create workout with today's date
-			await createWorkout({
-				date: today.toISOString(),
+			const workoutData = {
+				date: initialWorkout
+					? initialWorkout.date.toISOString()
+					: today.toISOString(),
 				name: selectedDay?.name || data.name || null,
 				workoutDayId: selectedWorkoutDayId,
 				exercises: data.exercises,
-			});
+			};
 
-			router.push("/workout");
+			if (initialWorkout) {
+				// Update existing workout
+				await updateWorkout(initialWorkout.id, workoutData);
+				router.push(`/workout/${initialWorkout.id}`);
+			} else {
+				// Create new workout
+				await createWorkout(workoutData);
+				router.push("/workout");
+			}
+
 			router.refresh();
 		} catch (error) {
 			console.error("Error submitting workout:", error);
@@ -91,10 +126,7 @@ export function WorkoutForm({ workoutDays }: WorkoutFormProps) {
 	};
 
 	return (
-		<form
-			onSubmit={handleSubmit(onSubmit)}
-			className="space-y-4 sm:space-y-6"
-		>
+		<form onSubmit={handleSubmit(onSubmit)} className="space-y-4 sm:space-y-6">
 			<Card>
 				<CardContent className="pt-4 sm:pt-6">
 					<div className="space-y-4">
@@ -144,7 +176,10 @@ export function WorkoutForm({ workoutDays }: WorkoutFormProps) {
 							</div>
 
 							{exerciseFields.map((field, index) => (
-								<div key={field.id} className="border rounded-lg p-3 sm:p-4 space-y-3 sm:space-y-4">
+								<div
+									key={field.id}
+									className="border rounded-lg p-3 sm:p-4 space-y-3 sm:space-y-4"
+								>
 									<ExerciseForm
 										control={control}
 										register={register}
@@ -175,7 +210,11 @@ export function WorkoutForm({ workoutDays }: WorkoutFormProps) {
 				<Button
 					type="button"
 					variant="outline"
-					onClick={() => router.push("/workout")}
+					onClick={() =>
+						router.push(
+							initialWorkout ? `/workout/${initialWorkout.id}` : "/workout",
+						)
+					}
 					disabled={isSubmitting}
 					className="w-full sm:w-auto"
 				>
@@ -186,7 +225,11 @@ export function WorkoutForm({ workoutDays }: WorkoutFormProps) {
 					disabled={isSubmitting}
 					className="w-full sm:w-auto"
 				>
-					{isSubmitting ? "Saving..." : "Save Workout"}
+					{isSubmitting
+						? "Saving..."
+						: initialWorkout
+							? "Update Workout"
+							: "Save Workout"}
 				</Button>
 			</div>
 		</form>

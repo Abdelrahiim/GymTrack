@@ -1,76 +1,75 @@
-import { auth } from "@/auth";
 import { redirect, notFound } from "next/navigation";
-import prisma from "@/lib/prisma";
+import { auth } from "@/auth";
 import { WorkoutHeader } from "@/components/workout/WorkoutHeader";
-// Import the refactored WorkoutForm AND its expected prop type
-import {
-	WorkoutForm,
-	type InitialWorkoutData,
-} from "@/components/workout/WorkoutForm";
+import { WorkoutForm } from "@/components/workout/WorkoutForm";
+import { getWorkoutDayNames } from "@/actions/workouts";
+import prisma from "@/lib/prisma";
 
-export default async function EditWorkoutPage({
-	params,
+export default async function EditWorkout({
+  params,
 }: {
-	params: Promise<{ id: string }>;
+  params: Promise<{ id: string }>;
 }) {
-	const session = await auth();
+  const session = await auth();
 
-	if (!session) {
-		redirect("/auth/signin");
-	}
+  // Redirect unauthenticated users to login
+  if (!session?.user) {
+    redirect("/auth/signin");
+  }
 
-	// Fetch the workout data to pass to the form
-	const { id } = await Promise.resolve(params);
-	const workout = await prisma.workout.findUnique({
-		where: {
-			id,
-			userId: session.user.id, // Ensure user can only edit their own workouts
-		},
-		include: {
-			exercises: {
-				include: {
-					sets: true,
-				},
-				orderBy: { createdAt: "asc" }, // Maintain order
-			},
-			workoutDay: true, // Include the workout day
-		},
-	});
+  // Get workout details
+  const { id } = await Promise.resolve(params);
+  const workout = await prisma.workout.findUnique({
+    where: {
+      id,
+    },
+    include: {
+      exercises: {
+        include: {
+          sets: true,
+        },
+      },
+    },
+  });
 
-	// If workout not found or doesn't belong to user, show 404
-	if (!workout) {
-		notFound();
-	}
+  if (!workout) {
+    notFound();
+  }
 
-	// Fetch user with their current level and workout days
-	const user = await prisma.user.findUnique({
-		where: { id: session.user.id },
-		select: {
-			id: true,
-			currentLevelId: true,
-			currentLevel: {
-				include: {
-					workoutDays: true
-				}
-			}
-		}
-	});
+  // Check if user has access to this workout
+  const isOwner = workout.userId === session.user.id;
+  const isAdmin = session.user.role === "ADMIN";
 
-	if (!user?.currentLevelId || !user?.currentLevel) {
-		redirect("/dashboard");
-	}
+  if (!isOwner && !isAdmin) {
+    redirect("/");
+  }
 
-	const workoutDays = user.currentLevel.workoutDays;
+  const workoutDays = await getWorkoutDayNames();
 
-	// The fetched workout structure should match InitialWorkoutData
-	// if the Prisma query is correct. We don't need the transformation.
-	const initialDataForForm: InitialWorkoutData = workout;
-
-	return (
-		<div className="container mx-auto px-4 py-4 sm:py-8 space-y-4 sm:space-y-6">
-			<WorkoutHeader title="Edit Workout" />
-			{/* Pass the correctly typed data without casting */}
-			<WorkoutForm initialData={initialDataForForm} workoutDays={workoutDays} />
-		</div>
-	);
+  return (
+    <div className="container mx-auto px-4 py-4 sm:py-6 space-y-4 sm:space-y-6">
+      <WorkoutHeader
+        title="Edit Workout"
+        description="Update your workout details"
+        backHref={`/workout/${id}`}
+      />
+      <WorkoutForm 
+        workoutDays={workoutDays} 
+        initialWorkout={{
+          id: workout.id,
+          date: workout.date,
+          name: workout.name || "",
+          workoutDayId: workout.workoutDayId || "",
+          exercises: workout.exercises.map(exercise => ({
+            name: exercise.name,
+            sets: exercise.sets.map(set => ({
+              reps: set.reps,
+              weight: set.weight || 0,
+              weightUnit: set.weightUnit,
+            }))
+          }))
+        }}
+      />
+    </div>
+  );
 }
