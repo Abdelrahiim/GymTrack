@@ -21,9 +21,7 @@ export default async function NewUserPage() {
 		<div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
 			<div className="flex items-center mb-6">
 				<Link href="/admin/users" className="mr-4">
-					<Button asChild>
-						← Back to Users
-					</Button>
+					<Button asChild>← Back to Users</Button>
 				</Link>
 				<h1 className="text-2xl sm:text-3xl font-bold">Add New User</h1>
 			</div>

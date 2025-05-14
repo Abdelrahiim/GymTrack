@@ -38,11 +38,12 @@ export function LevelChangeForm({ user }: { user: User }) {
 		});
 	};
 
-	const isHighestLevel = 
+	const isHighestLevel =
 		user.userLevelsData.length === 0 ||
 		(!!user.currentLevelId &&
 			user.userLevelsData.length > 0 &&
-			user.currentLevelId === user.userLevelsData[user.userLevelsData.length - 1].id);
+			user.currentLevelId ===
+				user.userLevelsData[user.userLevelsData.length - 1].id);
 
 	return (
 		<>

@@ -10,9 +10,9 @@ declare module "next-auth" {
 	}
 
 	interface User extends DefaultUser {
-			role?: "ADMIN" | "USER";
+		role?: "ADMIN" | "USER";
 	}
-	}
+}
 
 declare module "next-auth/jwt" {
 	interface JWT extends DefaultJWT {

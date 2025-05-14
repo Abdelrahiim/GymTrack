@@ -18,4 +18,4 @@ export const levelFormSchema = z.object({
 });
 
 export type LevelFormValues = z.infer<typeof levelFormSchema>;
-export type WorkoutDayFormValues = z.infer<typeof workoutDaySchema>; // Export workout day type 
+export type WorkoutDayFormValues = z.infer<typeof workoutDaySchema>; // Export workout day type

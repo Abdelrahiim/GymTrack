@@ -265,9 +265,7 @@ export default async function WorkoutDayPage({
 										<h3 className="text-sm text-muted-foreground">
 											Total Sets
 										</h3>
-										<p className="text-2xl font-bold mt-1">
-											{stats.totalSets}
-										</p>
+										<p className="text-2xl font-bold mt-1">{stats.totalSets}</p>
 									</div>
 									<div className="bg-muted/20 p-4 rounded-lg">
 										<h3 className="text-sm text-muted-foreground">
@@ -382,13 +380,25 @@ export default async function WorkoutDayPage({
 											<div className="h-[300px] sm:h-[350px] md:h-[450px] w-full">
 												<ExerciseProgressChart
 													exerciseNames={Array.from(allExercises)}
-													exerciseProgressData={Object.entries(exerciseProgress).reduce((acc, [name, data]) => {
-														// Get weightUnit for this exercise from lastWorkoutExercises if available
-														const unit = lastWorkoutExercises[name]?.weightUnit || "kg";
-														// Add weightUnit to each data point
-														acc[name] = data.map(point => ({ ...point, weightUnit: unit }));
-														return acc;
-													}, {} as Record<string, typeof exerciseProgress[string]>)}
+													exerciseProgressData={Object.entries(
+														exerciseProgress,
+													).reduce(
+														(acc, [name, data]) => {
+															// Get weightUnit for this exercise from lastWorkoutExercises if available
+															const unit =
+																lastWorkoutExercises[name]?.weightUnit || "kg";
+															// Add weightUnit to each data point
+															acc[name] = data.map((point) => ({
+																...point,
+																weightUnit: unit,
+															}));
+															return acc;
+														},
+														{} as Record<
+															string,
+															(typeof exerciseProgress)[string]
+														>,
+													)}
 													showMultipleExercises={true}
 												/>
 											</div>
@@ -547,19 +557,21 @@ function ChangeIndicator({ value }: { value: number }) {
 }
 
 // Function to calculate average time between workouts in days
-function calculateAverageTimeBetween(workouts: Array<{ date: Date | string }>): string {
+function calculateAverageTimeBetween(
+	workouts: Array<{ date: Date | string }>,
+): string {
 	if (workouts.length <= 1) return "N/A";
-	
+
 	let totalDays = 0;
-	
+
 	for (let i = 1; i < workouts.length; i++) {
 		const current = new Date(workouts[i].date);
-		const previous = new Date(workouts[i-1].date);
+		const previous = new Date(workouts[i - 1].date);
 		const diffTime = Math.abs(current.getTime() - previous.getTime());
 		const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 		totalDays += diffDays;
 	}
-	
+
 	const average = totalDays / (workouts.length - 1);
 	return `${average.toFixed(1)} days`;
 }

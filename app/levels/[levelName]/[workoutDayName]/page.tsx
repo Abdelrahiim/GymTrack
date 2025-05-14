@@ -26,7 +26,7 @@ import { format, formatDistance } from "date-fns";
 import type { WeightUnit } from "@/lib/prisma";
 
 interface LevelWorkoutDayPageProps {
-	params: Promise<	{
+	params: Promise<{
 		levelName: string;
 		workoutDayName: string;
 	}>;
@@ -295,13 +295,25 @@ export default async function LevelWorkoutDayPage({
 											<div className="h-[300px] sm:h-[350px] md:h-[450px] w-full">
 												<ExerciseProgressChart
 													exerciseNames={Array.from(allExercises)}
-													exerciseProgressData={Object.entries(exerciseProgress).reduce((acc, [name, data]) => {
-														// Get weightUnit for this exercise from lastWorkoutExercises if available
-														const unit = lastWorkoutExercises[name]?.weightUnit || "kg";
-														// Add weightUnit to each data point
-														acc[name] = data.map(point => ({ ...point, weightUnit: unit }));
-														return acc;
-													}, {} as Record<string, typeof exerciseProgress[string]>)}
+													exerciseProgressData={Object.entries(
+														exerciseProgress,
+													).reduce(
+														(acc, [name, data]) => {
+															// Get weightUnit for this exercise from lastWorkoutExercises if available
+															const unit =
+																lastWorkoutExercises[name]?.weightUnit || "kg";
+															// Add weightUnit to each data point
+															acc[name] = data.map((point) => ({
+																...point,
+																weightUnit: unit,
+															}));
+															return acc;
+														},
+														{} as Record<
+															string,
+															(typeof exerciseProgress)[string]
+														>,
+													)}
 													showMultipleExercises={true}
 												/>
 											</div>

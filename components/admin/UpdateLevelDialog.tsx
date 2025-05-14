@@ -47,7 +47,7 @@ interface LevelWithWorkoutDays extends Level {
 
 export function UpdateLevelDialog({
 	level: initialLevelData,
-	userId
+	userId,
 }: {
 	level: LevelWithWorkoutDays;
 	userId: string;
@@ -91,7 +91,7 @@ export function UpdateLevelDialog({
 
 		for (let i = 0; i < targetDaysCount; i++) {
 			newWorkoutDays.push(
-				currentWorkoutDays[i] || { name: "", description: "" }
+				currentWorkoutDays[i] || { name: "", description: "" },
 			);
 		}
 		replace(newWorkoutDays);
@@ -100,13 +100,19 @@ export function UpdateLevelDialog({
 	const onSubmit = async (data: LevelFormValues) => {
 		const finalData = {
 			...data,
-			workoutDays: data.workoutDays?.slice(0, data.daysPerWeek || 0).map((day, index) => ({
-				...day,
-				dayNumber: index + 1,
-			})),
+			workoutDays: data.workoutDays
+				?.slice(0, data.daysPerWeek || 0)
+				.map((day, index) => ({
+					...day,
+					dayNumber: index + 1,
+				})),
 		};
 
-		const result = await updateLevelAction(initialLevelData.id, userId, finalData);
+		const result = await updateLevelAction(
+			initialLevelData.id,
+			userId,
+			finalData,
+		);
 
 		if (result.success) {
 			toast.success("Level updated successfully");
@@ -127,17 +133,20 @@ export function UpdateLevelDialog({
 	};
 
 	return (
-		<Dialog open={open} onOpenChange={(isOpen) => {
-			setOpen(isOpen);
-			if (!isOpen) {
-				form.reset({
-					name: initialLevelData.name,
-					description: initialLevelData.description || "",
-					daysPerWeek: initialLevelData.daysPerWeek,
-					workoutDays: prepareDefaultWorkoutDays(initialLevelData),
-				});
-			}
-		}}>
+		<Dialog
+			open={open}
+			onOpenChange={(isOpen) => {
+				setOpen(isOpen);
+				if (!isOpen) {
+					form.reset({
+						name: initialLevelData.name,
+						description: initialLevelData.description || "",
+						daysPerWeek: initialLevelData.daysPerWeek,
+						workoutDays: prepareDefaultWorkoutDays(initialLevelData),
+					});
+				}
+			}}
+		>
 			<DialogTrigger asChild>
 				<Button size="sm" variant="ghost" className="h-8 w-8 p-0">
 					<span className="sr-only">Edit level</span>
@@ -160,10 +169,7 @@ export function UpdateLevelDialog({
 								<FormItem>
 									<FormLabel>Level Name</FormLabel>
 									<FormControl>
-										<Input
-											placeholder="e.g., Phase 1: Foundation"
-											{...field}
-										/>
+										<Input placeholder="e.g., Phase 1: Foundation" {...field} />
 									</FormControl>
 									<FormMessage />
 								</FormItem>
@@ -243,7 +249,11 @@ export function UpdateLevelDialog({
 										<FormItem>
 											<FormLabel>Day Description (Optional)</FormLabel>
 											<FormControl>
-												<Textarea placeholder="Focus, main lifts, etc." {...field} value={field.value || ""} />
+												<Textarea
+													placeholder="Focus, main lifts, etc."
+													{...field}
+													value={field.value || ""}
+												/>
 											</FormControl>
 											<FormMessage />
 										</FormItem>
@@ -253,7 +263,11 @@ export function UpdateLevelDialog({
 						))}
 						<DialogFooter className="mt-6">
 							<DialogClose asChild>
-								<Button type="button" variant="outline" onClick={resetFormAndClose}>
+								<Button
+									type="button"
+									variant="outline"
+									onClick={resetFormAndClose}
+								>
 									Cancel
 								</Button>
 							</DialogClose>
@@ -266,4 +280,4 @@ export function UpdateLevelDialog({
 			</DialogContent>
 		</Dialog>
 	);
-} 
+}

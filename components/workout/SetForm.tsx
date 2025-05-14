@@ -65,20 +65,21 @@ export function SetForm({
 		`exercises.${exerciseIndex}.sets.${setIndex}.weight` as const;
 	const unitFieldName =
 		`exercises.${exerciseIndex}.sets.${setIndex}.weightUnit` as const;
-		
+
 	// Propagate unit change to all sets in this exercise when unit changes
 	const propagateUnitChange = (newUnit: WeightUnit) => {
 		// Get current exercise
 		const exercises = getValues("exercises");
 		const currentExercise = exercises?.[exerciseIndex];
-		
+
 		if (currentExercise?.sets) {
 			// Update all sets with the same unit
 			currentExercise.sets.forEach((_, idx) => {
-				if (idx !== setIndex) { // Skip current set as it's already updated
+				if (idx !== setIndex) {
+					// Skip current set as it's already updated
 					setValue(
 						`exercises.${exerciseIndex}.sets.${idx}.weightUnit` as const,
-						newUnit
+						newUnit,
 					);
 				}
 			});
@@ -166,8 +167,8 @@ export function SetForm({
 										</SelectTrigger>
 										<SelectContent>
 											{weightUnits.map((unit) => (
-												<SelectItem 
-													key={unit} 
+												<SelectItem
+													key={unit}
 													value={unit}
 													className="text-xs xs:text-sm"
 												>

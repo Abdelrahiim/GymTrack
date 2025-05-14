@@ -64,9 +64,11 @@ export function CreateLevelDialog({ userId }: { userId: string }) {
 		const currentWorkoutDaysCount = fields.length;
 		const targetDays = daysPerWeek || 0;
 		if (currentWorkoutDaysCount !== targetDays) {
-			const newWorkoutDays = Array(targetDays).fill(null).map((_, i) => {
-				return fields[i] || { name: "", description: "" };
-			});
+			const newWorkoutDays = Array(targetDays)
+				.fill(null)
+				.map((_, i) => {
+					return fields[i] || { name: "", description: "" };
+				});
 			replace(newWorkoutDays);
 		}
 	}, [daysPerWeek, fields, replace]);
@@ -93,17 +95,20 @@ export function CreateLevelDialog({ userId }: { userId: string }) {
 	};
 
 	return (
-		<Dialog open={open} onOpenChange={(isOpen) => {
-			setOpen(isOpen);
-			if (!isOpen) {
-				form.reset({
-					name: "",
-					description: "",
-					daysPerWeek: 3,
-					workoutDays: Array(3).fill({ name: "", description: "" }),
-				});
-			}
-		}}>
+		<Dialog
+			open={open}
+			onOpenChange={(isOpen) => {
+				setOpen(isOpen);
+				if (!isOpen) {
+					form.reset({
+						name: "",
+						description: "",
+						daysPerWeek: 3,
+						workoutDays: Array(3).fill({ name: "", description: "" }),
+					});
+				}
+			}}
+		>
 			<DialogTrigger asChild>
 				<Button variant="outline" className="flex gap-2 items-center">
 					<PlusCircle className="h-4 w-4" /> Create Level
@@ -113,7 +118,8 @@ export function CreateLevelDialog({ userId }: { userId: string }) {
 				<DialogHeader>
 					<DialogTitle>Create New Level</DialogTitle>
 					<DialogDescription>
-						Add a new training level for this user, including specific workout days.
+						Add a new training level for this user, including specific workout
+						days.
 					</DialogDescription>
 				</DialogHeader>
 				<Form {...form}>
@@ -125,10 +131,7 @@ export function CreateLevelDialog({ userId }: { userId: string }) {
 								<FormItem>
 									<FormLabel>Level Name</FormLabel>
 									<FormControl>
-										<Input
-											placeholder="e.g., Phase 1: Foundation"
-											{...field}
-										/>
+										<Input placeholder="e.g., Phase 1: Foundation" {...field} />
 									</FormControl>
 									<FormMessage />
 								</FormItem>
@@ -209,7 +212,11 @@ export function CreateLevelDialog({ userId }: { userId: string }) {
 										<FormItem>
 											<FormLabel>Day Description (Optional)</FormLabel>
 											<FormControl>
-												<Textarea placeholder="Focus, main lifts, etc." {...field} value={field.value || ""} />
+												<Textarea
+													placeholder="Focus, main lifts, etc."
+													{...field}
+													value={field.value || ""}
+												/>
 											</FormControl>
 											<FormMessage />
 										</FormItem>
@@ -220,15 +227,19 @@ export function CreateLevelDialog({ userId }: { userId: string }) {
 
 						<DialogFooter className="mt-6">
 							<DialogClose asChild>
-								<Button type="button" variant="outline" onClick={() => {
-									form.reset({
-										name: "",
-										description: "",
-										daysPerWeek: 3,
-										workoutDays: Array(3).fill({ name: "", description: "" }),
-									});
-									setOpen(false);
-								}}>
+								<Button
+									type="button"
+									variant="outline"
+									onClick={() => {
+										form.reset({
+											name: "",
+											description: "",
+											daysPerWeek: 3,
+											workoutDays: Array(3).fill({ name: "", description: "" }),
+										});
+										setOpen(false);
+									}}
+								>
 									Cancel
 								</Button>
 							</DialogClose>

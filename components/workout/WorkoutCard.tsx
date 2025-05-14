@@ -112,7 +112,7 @@ export function WorkoutCard({ workout }: WorkoutCardProps) {
 						)}
 						{workout.level && workout.workoutDay && (
 							<div className="mt-2">
-								<Link 
+								<Link
 									href={`/levels/${encodeURIComponent(workout.level.name)}/${encodeURIComponent(workout.workoutDay.name)}`}
 									className="flex items-center text-xs px-2 py-1 rounded-md bg-primary/10 hover:bg-primary/20 text-primary transition-colors w-fit"
 								>

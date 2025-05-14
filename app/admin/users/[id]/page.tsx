@@ -84,17 +84,17 @@ export default async function UserPage({ params }: UserPageProps) {
 
 	let currentLevelData: LevelWithWorkoutDays | null = null;
 	if (basicUser.currentLevelId) {
-		currentLevelData = await prisma.level.findUnique({
+		currentLevelData = (await prisma.level.findUnique({
 			where: { id: basicUser.currentLevelId },
 			include: { workoutDays: true },
-		}) as LevelWithWorkoutDays;
+		})) as LevelWithWorkoutDays;
 	}
 
-	const userLevelsData: LevelWithWorkoutDays[] = await prisma.level.findMany({
+	const userLevelsData: LevelWithWorkoutDays[] = (await prisma.level.findMany({
 		where: { userId: basicUser.id }, // Levels created by/for this user
 		orderBy: { name: "asc" },
 		include: { workoutDays: true },
-	}) as LevelWithWorkoutDays[];
+	})) as LevelWithWorkoutDays[];
 
 	// Construct the object for the page, ensuring correct typing
 	const user: EnrichedUserPageData = {
@@ -192,11 +192,13 @@ export default async function UserPage({ params }: UserPageProps) {
 					</div>
 				</CardContent>
 				<CardFooter className="flex flex-col sm:flex-row gap-2 pt-6 border-t">
-					<LevelChangeForm user={{
-						id: user.id,
-						currentLevelId: user.currentLevelId,
-						userLevelsData: user.userLevelsData
-					}} />
+					<LevelChangeForm
+						user={{
+							id: user.id,
+							currentLevelId: user.currentLevelId,
+							userLevelsData: user.userLevelsData,
+						}}
+					/>
 				</CardFooter>
 			</Card>
 
@@ -210,7 +212,9 @@ export default async function UserPage({ params }: UserPageProps) {
 				</CardHeader>
 				<CardContent>
 					{user.userLevelsData.length === 0 ? (
-						<p className="text-muted-foreground text-center py-4">This user currently has no levels.</p>
+						<p className="text-muted-foreground text-center py-4">
+							This user currently has no levels.
+						</p>
 					) : (
 						<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 							{user.userLevelsData.map((level) => (
@@ -221,23 +225,30 @@ export default async function UserPage({ params }: UserPageProps) {
 									<CardContent className="space-y-3 text-sm flex-grow">
 										{level.description && (
 											<p className="text-muted-foreground flex items-start text-xs">
-												<BookOpen className="mr-1.5 h-3.5 w-3.5 shrink-0 mt-0.5" /> 
+												<BookOpen className="mr-1.5 h-3.5 w-3.5 shrink-0 mt-0.5" />
 												<span>{level.description}</span>
 											</p>
 										)}
 										<p className="text-muted-foreground flex items-center text-xs">
-											<ListChecks className="mr-1.5 h-3.5 w-3.5" /> 
+											<ListChecks className="mr-1.5 h-3.5 w-3.5" />
 											Days per week: {level.daysPerWeek}
 										</p>
 										{level.workoutDays && level.workoutDays.length > 0 && (
 											<div className="pt-2 mt-2 border-t border-dashed">
-												<h4 className="text-xs font-semibold mb-1.5 text-foreground">Workout Days:</h4>
+												<h4 className="text-xs font-semibold mb-1.5 text-foreground">
+													Workout Days:
+												</h4>
 												<ul className="space-y-1.5">
 													{level.workoutDays.map((day) => (
-														<li key={day.id} className="text-xs text-muted-foreground">
+														<li
+															key={day.id}
+															className="text-xs text-muted-foreground"
+														>
 															<p className="flex items-center">
 																<Target className="mr-1.5 h-3.5 w-3.5 shrink-0" />
-																<strong className="text-foreground mr-1">{day.name}:</strong>
+																<strong className="text-foreground mr-1">
+																	{day.name}:
+																</strong>
 															</p>
 															{day.description && (
 																<p className="pl-5 flex items-start">

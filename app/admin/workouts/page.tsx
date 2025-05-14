@@ -6,7 +6,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { BarChart, ChevronRight, Dumbbell, ListFilter, Users } from "lucide-react";
+import {
+	BarChart,
+	ChevronRight,
+	Dumbbell,
+	ListFilter,
+	Users,
+} from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { format } from "date-fns";
 
@@ -52,13 +58,13 @@ export default async function AdminWorkouts({
 				take: 1, // Get most recent workout
 			},
 			_count: {
-				select: { 
+				select: {
 					workouts: true,
 				},
 			},
 		},
 		orderBy: [
-			{ 
+			{
 				name: "asc",
 			},
 		],
@@ -79,14 +85,16 @@ export default async function AdminWorkouts({
 				userId: user.id,
 				totalExercises,
 			};
-		})
+		}),
 	);
 
 	// Combine user data with stats
-	const usersWithStats = users.map(user => {
-		const stats = userStats.find(stat => stat.userId === user.id);
-		const currentLevel = user.levels.find(level => level.id === user.currentLevelId);
-		
+	const usersWithStats = users.map((user) => {
+		const stats = userStats.find((stat) => stat.userId === user.id);
+		const currentLevel = user.levels.find(
+			(level) => level.id === user.currentLevelId,
+		);
+
 		return {
 			...user,
 			totalExercises: stats?.totalExercises || 0,
@@ -106,7 +114,7 @@ export default async function AdminWorkouts({
 							User Management
 						</h1>
 					</div>
-					
+
 					<div className="flex flex-col sm:flex-row gap-2">
 						<form className="flex w-full max-w-sm items-center space-x-2">
 							<Input
@@ -128,7 +136,8 @@ export default async function AdminWorkouts({
 			{/* Users Count */}
 			<div className="flex items-center justify-between">
 				<div className="text-sm font-medium text-muted-foreground">
-					{usersWithStats.length} {usersWithStats.length === 1 ? 'user' : 'users'} found
+					{usersWithStats.length}{" "}
+					{usersWithStats.length === 1 ? "user" : "users"} found
 				</div>
 			</div>
 
@@ -142,19 +151,31 @@ export default async function AdminWorkouts({
 					</Card>
 				) : (
 					usersWithStats.map((user) => (
-						<Card key={user.id} className="overflow-hidden hover:shadow-md transition-shadow">
+						<Card
+							key={user.id}
+							className="overflow-hidden hover:shadow-md transition-shadow"
+						>
 							<CardHeader className="pb-2 px-4">
 								<div className="flex justify-between items-start">
 									<div className="flex items-center gap-3">
 										<Avatar className="h-10 w-10">
-											<AvatarImage src={user.image || undefined} alt={user.name || "User"} />
+											<AvatarImage
+												src={user.image || undefined}
+												alt={user.name || "User"}
+											/>
 											<AvatarFallback>
-												{user.name ? user.name.substring(0, 2).toUpperCase() : "U"}
+												{user.name
+													? user.name.substring(0, 2).toUpperCase()
+													: "U"}
 											</AvatarFallback>
 										</Avatar>
 										<div>
-											<p className="font-medium">{user.name || "Unnamed User"}</p>
-											<p className="text-xs text-muted-foreground truncate max-w-[180px]">{user.email}</p>
+											<p className="font-medium">
+												{user.name || "Unnamed User"}
+											</p>
+											<p className="text-xs text-muted-foreground truncate max-w-[180px]">
+												{user.email}
+											</p>
 										</div>
 									</div>
 								</div>
@@ -162,42 +183,56 @@ export default async function AdminWorkouts({
 							<CardContent className="px-4 pt-0 pb-4 space-y-4">
 								<div className="flex flex-wrap items-center gap-2 mt-2">
 									{user.currentLevel ? (
-										<Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
+										<Badge
+											variant="outline"
+											className="bg-primary/10 text-primary border-primary/20"
+										>
 											{user.currentLevel.name}
 										</Badge>
 									) : (
-										<span className="text-xs text-muted-foreground">No level assigned</span>
+										<span className="text-xs text-muted-foreground">
+											No level assigned
+										</span>
 									)}
 								</div>
-								
+
 								<div className="grid grid-cols-2 gap-3">
 									<div className="bg-muted/20 rounded-md p-2 flex flex-col">
-										<span className="text-xs text-muted-foreground">Workouts</span>
+										<span className="text-xs text-muted-foreground">
+											Workouts
+										</span>
 										<div className="flex items-center mt-1">
 											<Dumbbell className="h-3.5 w-3.5 text-primary mr-1.5" />
-											<span className="font-medium">{user._count.workouts}</span>
+											<span className="font-medium">
+												{user._count.workouts}
+											</span>
 										</div>
 									</div>
 									<div className="bg-muted/20 rounded-md p-2 flex flex-col">
-										<span className="text-xs text-muted-foreground">Exercises</span>
+										<span className="text-xs text-muted-foreground">
+											Exercises
+										</span>
 										<div className="flex items-center mt-1">
 											<BarChart className="h-3.5 w-3.5 text-primary mr-1.5" />
 											<span className="font-medium">{user.totalExercises}</span>
 										</div>
 									</div>
 								</div>
-								
+
 								<div className="flex items-center justify-between pt-2 border-t">
 									<div className="text-xs text-muted-foreground">
 										{user.lastWorkoutDate ? (
-											<span>Last active: {format(new Date(user.lastWorkoutDate), "MMM d, yyyy")}</span>
+											<span>
+												Last active:{" "}
+												{format(new Date(user.lastWorkoutDate), "MMM d, yyyy")}
+											</span>
 										) : (
 											<span>Never active</span>
 										)}
 									</div>
 									<Link href={`/admin/workouts/${user.id}`}>
 										<Button variant="outline" size="sm" className="gap-1">
-											Details 
+											Details
 											<ChevronRight className="h-3.5 w-3.5" />
 										</Button>
 									</Link>

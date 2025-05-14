@@ -44,10 +44,7 @@ export function ExerciseForm({
 	// Get current weight unit from the first set (if exists)
 	const getCurrentWeightUnit = () => {
 		const exercises = getValues("exercises");
-		if (
-			exercises && 
-			exercises[exerciseIndex]?.sets?.length > 0
-		) {
+		if (exercises && exercises[exerciseIndex]?.sets?.length > 0) {
 			return exercises[exerciseIndex].sets[0].weightUnit || WeightUnit.KG;
 		}
 		return WeightUnit.KG;
@@ -87,10 +84,10 @@ export function ExerciseForm({
 						variant="outline"
 						size="sm"
 						onClick={() =>
-							appendSet({ 
-								reps: 10, 
-								weight: 0, 
-								weightUnit: getCurrentWeightUnit() 
+							appendSet({
+								reps: 10,
+								weight: 0,
+								weightUnit: getCurrentWeightUnit(),
 							})
 						}
 						className="gap-1 xs:gap-1.5 sm:gap-1.5 w-full xs:w-auto text-xs xs:text-xs sm:text-sm whitespace-nowrap min-h-8 h-auto py-1.5"

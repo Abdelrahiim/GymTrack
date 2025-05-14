@@ -38,15 +38,14 @@ export function SignInForm() {
 		try {
 			setIsLoading(true);
 			setErrorMessage(null);
-			
-			
+
 			const result = await signIn("credentials", {
 				email: data.email,
 				password: data.password,
 				redirect: false,
 				callbackUrl: "/",
 			});
-			
+
 			if (result?.error) {
 				setErrorMessage("Invalid email or password");
 				toast.error("Invalid email or password");
@@ -64,7 +63,8 @@ export function SignInForm() {
 			router.push("/");
 			router.refresh();
 		} catch (error) {
-			const message = error instanceof Error ? error.message : "An unexpected error occurred";
+			const message =
+				error instanceof Error ? error.message : "An unexpected error occurred";
 			console.error("Sign in exception:", error);
 			setErrorMessage(message);
 			toast.error("Something went wrong. Please try again.");
@@ -135,11 +135,7 @@ export function SignInForm() {
 						</FormItem>
 					)}
 				/>
-				<Button
-					type="submit"
-					className="w-full"
-					disabled={isLoading}
-				>
+				<Button type="submit" className="w-full" disabled={isLoading}>
 					{isLoading ? (
 						<>
 							<Loader2 className="mr-2 h-4 w-4 animate-spin" />

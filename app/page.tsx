@@ -93,12 +93,12 @@ export default async function Dashboard() {
 
 	// Get workout patterns for each weekday
 	const workoutPatternsByDay = new Map();
-	
+
 	// Look at past workouts to find patterns by day of week
 	for (const workout of recentWorkouts) {
 		const workoutDate = new Date(workout.date);
 		const dayOfWeek = workoutDate.getDay(); // 0-6 (Sunday-Saturday)
-		
+
 		// Store the most recent workout for each day of week
 		const existingWorkout = workoutPatternsByDay.get(dayOfWeek);
 		if (!existingWorkout || workoutDate > new Date(existingWorkout.date)) {
@@ -175,24 +175,24 @@ export default async function Dashboard() {
 											const isPast = dayDate < today;
 											const isFuture = dayDate > today;
 											const dayOfWeek = dayDate.getDay();
-											
+
 											// Find workout for this day in the current week
 											const dayWorkout = recentWorkouts.find((workout) =>
 												isSameDay(new Date(workout.date), dayDate),
 											);
-											
+
 											// Get the pattern for this day of week from historical data
 											const dayPattern = workoutPatternsByDay.get(dayOfWeek);
-											
+
 											const isCompleted = !!dayWorkout;
-											const dayWorkoutName = dayWorkout 
-												? (dayWorkout.name || dayWorkout.workoutDay?.name)
-												: dayPattern 
-													? (dayPattern.name || dayPattern.workoutDay?.name) 
+											const dayWorkoutName = dayWorkout
+												? dayWorkout.name || dayWorkout.workoutDay?.name
+												: dayPattern
+													? dayPattern.name || dayPattern.workoutDay?.name
 													: null;
-												
+
 											const showWorkoutIcon = isCompleted;
-											
+
 											return (
 												<div
 													key={format(dayDate, "yyyy-MM-dd")}
@@ -226,8 +226,8 @@ export default async function Dashboard() {
 													)}
 													{!isCompleted && (
 														<div className="mt-1 text-xs text-muted-foreground">
-															{isToday 
-																? "_" 
+															{isToday
+																? "_"
 																: isFuture
 																	? "Incoming"
 																	: dayWorkoutName || "Rest"}
@@ -235,7 +235,7 @@ export default async function Dashboard() {
 													)}
 													{/* Add link to progress page for completed workouts */}
 													{isCompleted && dayWorkout?.workoutDay?.name && (
-														<Link 
+														<Link
 															href={`/workout/${dayWorkout.id}`}
 															className="mt-1 flex justify-center"
 														>
@@ -259,7 +259,8 @@ export default async function Dashboard() {
 										</span>
 									) : (
 										<span className="ml-1">
-											Please contact admin to create and assign a training level.
+											Please contact admin to create and assign a training
+											level.
 										</span>
 									)}
 								</AlertDescription>
@@ -408,7 +409,7 @@ export default async function Dashboard() {
 							</CardContent>
 						</Card>
 					</div>
-					
+
 					{/* Right Column: Training Programs (if exists) */}
 					{currentLevel ? (
 						<Card>
@@ -432,7 +433,9 @@ export default async function Dashboard() {
 											>
 												<div className="flex items-center">
 													<Dumbbell className="h-3 w-3 sm:h-4 sm:w-4 mr-1.5 sm:mr-2 text-primary" />
-													<span className="text-xs sm:text-sm truncate max-w-[120px] sm:max-w-none">{day.name}</span>
+													<span className="text-xs sm:text-sm truncate max-w-[120px] sm:max-w-none">
+														{day.name}
+													</span>
 												</div>
 												<ChevronRight className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground flex-shrink-0" />
 											</Link>
@@ -454,7 +457,8 @@ export default async function Dashboard() {
 										href="/workout"
 										className="text-xs sm:text-sm text-primary flex items-center"
 									>
-										View all <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4 ml-1" />
+										View all{" "}
+										<ChevronRight className="h-3 w-3 sm:h-4 sm:w-4 ml-1" />
 									</Link>
 								</div>
 							</CardHeader>
@@ -495,7 +499,9 @@ export default async function Dashboard() {
 								) : (
 									<div className="text-center py-6 sm:py-8">
 										<Dumbbell className="h-8 w-8 sm:h-12 sm:w-12 mx-auto text-muted-foreground mb-2 sm:mb-3" />
-										<h3 className="text-base sm:text-lg font-medium mb-1 sm:mb-2">No workouts yet</h3>
+										<h3 className="text-base sm:text-lg font-medium mb-1 sm:mb-2">
+											No workouts yet
+										</h3>
 										<p className="text-xs sm:text-sm text-muted-foreground mb-3 sm:mb-4">
 											Start tracking your workouts to see your progress
 										</p>
@@ -508,7 +514,7 @@ export default async function Dashboard() {
 						</Card>
 					)}
 				</div>
-					
+
 				{/* Recent Workouts (shown on all screen sizes when Training Programs exist, and only on mobile/tablet when it doesn't) */}
 				<Card className={currentLevel ? "" : "lg:hidden"}>
 					<CardHeader className="pb-2">
@@ -562,7 +568,9 @@ export default async function Dashboard() {
 						) : (
 							<div className="text-center py-6 sm:py-8">
 								<Dumbbell className="h-8 w-8 sm:h-12 sm:w-12 mx-auto text-muted-foreground mb-2 sm:mb-3" />
-								<h3 className="text-base sm:text-lg font-medium mb-1 sm:mb-2">No workouts yet</h3>
+								<h3 className="text-base sm:text-lg font-medium mb-1 sm:mb-2">
+									No workouts yet
+								</h3>
 								<p className="text-xs sm:text-sm text-muted-foreground mb-3 sm:mb-4">
 									Start tracking your workouts to see your progress
 								</p>

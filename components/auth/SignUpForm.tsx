@@ -59,16 +59,16 @@ export function SignUpForm() {
 			}
 
 			console.log("Registration successful, attempting sign in");
-			
+
 			// Wait a moment before trying to sign in to ensure the database has updated
-			await new Promise(resolve => setTimeout(resolve, 500));
-			
+			await new Promise((resolve) => setTimeout(resolve, 500));
+
 			console.log("Attempting sign in after registration");
 			const signInResult = await signIn("credentials", {
 				email: data.email,
 				password: data.password,
 				redirect: false,
-				callbackUrl: "/"
+				callbackUrl: "/",
 			});
 			console.log("Sign in result:", signInResult);
 
@@ -98,11 +98,7 @@ export function SignUpForm() {
 						<FormItem>
 							<FormLabel>Name</FormLabel>
 							<FormControl>
-								<Input
-									type="text"
-									placeholder="Enter your name"
-									{...field}
-								/>
+								<Input type="text" placeholder="Enter your name" {...field} />
 							</FormControl>
 							<FormMessage />
 						</FormItem>

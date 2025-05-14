@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Eye } from 'lucide-react';
+import { Eye } from "lucide-react";
 
 interface User {
 	id: string;
@@ -102,9 +102,7 @@ export function UserList({ users }: { users: User[] }) {
 									<CardTitle className="text-lg">
 										{user.name || "Unnamed User"}
 									</CardTitle>
-									<p className="text-sm text-muted-foreground">
-										{user.email}
-									</p>
+									<p className="text-sm text-muted-foreground">{user.email}</p>
 								</div>
 							</div>
 						</CardHeader>
