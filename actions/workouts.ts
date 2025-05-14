@@ -392,11 +392,13 @@ export async function getWorkoutDayNames() {
 	}
 
 	// Extract the names from workout days and ensure they're not null
-	return user.currentLevel.workoutDays
+	return user.currentLevel.workoutDays;
 }
 
 // Get a single workout by ID
-export async function getWorkoutById(id: string): Promise<WorkoutWithDetails | null> {
+export async function getWorkoutById(
+	id: string,
+): Promise<WorkoutWithDetails | null> {
 	const session = await auth();
 
 	if (!session?.user) {
@@ -406,7 +408,7 @@ export async function getWorkoutById(id: string): Promise<WorkoutWithDetails | n
 	const workout = await prisma.workout.findUnique({
 		where: {
 			id,
-			userId: session.user.id
+			userId: session.user.id,
 		},
 		include: {
 			exercises: {

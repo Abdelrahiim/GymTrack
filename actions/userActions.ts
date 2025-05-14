@@ -3,7 +3,11 @@
 import prisma from "@/lib/prisma"; // Assuming prisma is in lib
 import { revalidatePath } from "next/cache";
 
-export const handlePromote = async (userId: string, currentLevelId: string | null, userLevelsData: { id: string }[]) => {
+export const handlePromote = async (
+	userId: string,
+	currentLevelId: string | null,
+	userLevelsData: { id: string }[],
+) => {
 	try {
 		const targetUserId = userId;
 		const currentLevelIdFromUserObject = currentLevelId;
@@ -40,15 +44,17 @@ export const handlePromote = async (userId: string, currentLevelId: string | nul
 			data: { currentLevelId: newLevelIdToAssign },
 		});
 		revalidatePath(`/admin/users/${targetUserId}`);
-		console.log(
-			`User ${targetUserId} promoted to level ${newLevelIdToAssign}`,
-		);
+		console.log(`User ${targetUserId} promoted to level ${newLevelIdToAssign}`);
 	} catch (error) {
 		console.error("Failed to promote user:", error);
 	}
 };
 
-export const handleDemote = async (userId: string, currentLevelId: string | null, userLevelsData: { id: string }[]) => {
+export const handleDemote = async (
+	userId: string,
+	currentLevelId: string | null,
+	userLevelsData: { id: string }[],
+) => {
 	try {
 		const targetUserId = userId;
 		const currentLevelIdFromUserObject = currentLevelId;
@@ -88,4 +94,4 @@ export const handleDemote = async (userId: string, currentLevelId: string | null
 	} catch (error) {
 		console.error("Failed to demote user:", error);
 	}
-}; 
+};
