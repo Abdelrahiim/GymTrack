@@ -13,7 +13,7 @@ import { format } from "date-fns";
 export default async function AdminWorkouts({
 	searchParams,
 }: {
-	searchParams: { search?: string };
+	searchParams: Promise<{ search?: string }>;
 }) {
 	const session = await auth();
 
@@ -25,7 +25,7 @@ export default async function AdminWorkouts({
 		redirect("/");
 	}
 
-	const search = searchParams.search || "";
+	const search = (await searchParams).search || "";
 
 	// Fetch all users with their workout data and current level
 	const users = await prisma.user.findMany({
