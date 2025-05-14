@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, useFieldArray, Controller } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import {
 	Dialog,
 	DialogContent,
@@ -33,7 +33,7 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { PlusCircle, XCircle } from "lucide-react";
+import { PlusCircle } from "lucide-react";
 import {
 	levelFormSchema,
 	type LevelFormValues,
