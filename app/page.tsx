@@ -254,13 +254,13 @@ export default async function Dashboard() {
 								<AlertDescription>
 									You don't have a training level assigned yet.
 									{allLevels.length > 0 ? (
-										<Link href="/levels" className="ml-1 underline">
-											Choose a level
-										</Link>
+										<span className="ml-1">
+											Please contact admin to assign a training level.
+										</span>
 									) : (
-										<Link href="/levels/new" className="ml-1 underline">
-											Create your first level
-										</Link>
+										<span className="ml-1">
+											Please contact admin to create and assign a training level.
+										</span>
 									)}
 								</AlertDescription>
 							</Alert>
