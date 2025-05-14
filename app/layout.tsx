@@ -6,6 +6,9 @@ import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import Navbar from "@/components/layout/Navbar";
 import { cn } from "@/lib/utils";
 import Footer from "@/components/footer";
+import { Suspense } from "react";
+import { Loading } from "@/components/ui/loading";
+
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -30,7 +33,11 @@ export default function RootLayout({
 					<SessionProvider>
 						<div className="min-h-screen flex flex-col">
 							<Navbar />
-							<main className="flex-grow">{children}</main>
+							<main className="flex-grow">
+								<Suspense fallback={<Loading />}>
+									{children}
+								</Suspense>
+							</main>
 							<Footer />
 						</div>
 					</SessionProvider>
