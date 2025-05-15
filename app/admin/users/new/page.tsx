@@ -2,6 +2,7 @@ import { auth } from "@/auth"; // Use server-side auth helper
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { NewUserForm } from "@/components/admin/NewUserForm"; // Import the client form component
+import { Button } from "@/components/ui/button";
 
 // No need for schema or form types here anymore
 
@@ -19,11 +20,8 @@ export default async function NewUserPage() {
 	return (
 		<div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
 			<div className="flex items-center mb-6">
-				<Link
-					href="/admin/users"
-					className="text-blue-600 hover:text-blue-800 mr-4"
-				>
-					← Back to Users
+				<Link href="/admin/users" className="mr-4">
+					<Button asChild>← Back to Users</Button>
 				</Link>
 				<h1 className="text-2xl sm:text-3xl font-bold">Add New User</h1>
 			</div>

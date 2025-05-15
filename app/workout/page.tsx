@@ -5,7 +5,14 @@ import { WorkoutCard } from "@/components/workout/WorkoutCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Search, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+	Search,
+	ChevronLeft,
+	ChevronRight,
+	BarChart3,
+	Award,
+	Dumbbell,
+} from "lucide-react";
 import Link from "next/link";
 import { WorkoutFilter } from "@/components/dashboard/WorkoutFilter";
 import { format } from "date-fns";
@@ -76,6 +83,67 @@ export default async function WorkoutsPage({
 						<Button type="submit">Search</Button>
 					</form>
 
+					{/* If user has any workouts with level and workout day info, show quick links */}
+					{workouts.some((w) => w.workoutDay?.level) && (
+						<div className="mb-6 bg-accent/30 p-4 rounded-lg border border-border/50">
+							<h3 className="text-base font-medium mb-3 flex items-center">
+								<BarChart3 className="h-4 w-4 mr-2 text-primary" />
+								Your Training Programs
+							</h3>
+							<p className="text-sm text-muted-foreground mb-4">
+								Track your progress for each training day in your programs
+							</p>
+							<div className="flex flex-wrap gap-4">
+								{Array.from(
+									new Set(
+										workouts
+											.filter((w) => w.workoutDay?.level)
+											.map((w) => w.workoutDay?.level?.name),
+									),
+								).map((levelName) => (
+									<div
+										key={levelName}
+										className="space-y-2 bg-background rounded-md p-3 border flex-1 min-w-[200px]"
+									>
+										<h4 className="text-sm font-medium text-foreground flex items-center">
+											<Award className="h-4 w-4 mr-2 text-primary" />
+											{levelName}
+										</h4>
+										<div className="flex flex-wrap gap-2 mt-3">
+											{Array.from(
+												new Set(
+													workouts
+														.filter(
+															(w) => w.workoutDay?.level?.name === levelName,
+														)
+														.map((w) => w.workoutDay?.name),
+												),
+											)
+												.filter(Boolean)
+												.map((dayName) => (
+													<Button
+														key={dayName}
+														variant="outline"
+														size="sm"
+														asChild
+														className="h-8 text-xs px-3 hover:bg-primary/10 hover:text-primary"
+													>
+														<Link
+															href={`/levels/${encodeURIComponent(levelName || "")}/${encodeURIComponent(dayName || "")}`}
+															className="flex items-center"
+														>
+															<Dumbbell className="h-3 w-3 mr-1" />
+															{dayName}
+														</Link>
+													</Button>
+												))}
+										</div>
+									</div>
+								))}
+							</div>
+						</div>
+					)}
+
 					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 						{workouts.map((workout) => (
 							<WorkoutCard
@@ -84,6 +152,18 @@ export default async function WorkoutsPage({
 									id: workout.id,
 									date: format(new Date(workout.date), "yyyy-MM-dd"),
 									name: workout.name,
+									level: workout.workoutDay?.level
+										? {
+												id: workout.workoutDay.level.id,
+												name: workout.workoutDay.level.name,
+											}
+										: null,
+									workoutDay: workout.workoutDay
+										? {
+												id: workout.workoutDay.id,
+												name: workout.workoutDay.name,
+											}
+										: null,
 									exercises: workout.exercises.map((ex) => ({
 										name: ex.name,
 										sets: ex.sets.map((set) => ({

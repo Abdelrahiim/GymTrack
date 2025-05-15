@@ -20,6 +20,11 @@ type WorkoutWithDetails = Prisma.WorkoutGetPayload<{
 				image: true;
 			};
 		};
+		workoutDay: {
+			include: {
+				level: true;
+			};
+		};
 	};
 }>;
 
@@ -35,6 +40,7 @@ type ExerciseInput = {
 export async function createWorkout(formData: {
 	date: string;
 	name: string | null;
+	workoutDayId: string;
 	exercises: ExerciseInput[];
 }) {
 	try {
@@ -44,13 +50,14 @@ export async function createWorkout(formData: {
 			throw new Error("Unauthorized");
 		}
 
-		const { date, name, exercises } = formData;
+		const { date, name, workoutDayId, exercises } = formData;
 
 		// Create the workout
 		const workout = await prisma.workout.create({
 			data: {
 				date: new Date(date),
 				name: name,
+				workoutDayId: workoutDayId,
 				userId: session.user.id,
 				exercises: {
 					create: exercises.map((exercise) => ({
@@ -142,6 +149,11 @@ export async function getWorkouts({
 						image: true,
 					},
 				},
+				workoutDay: {
+					include: {
+						level: true,
+					},
+				},
 			},
 			orderBy: {
 				date: "desc",
@@ -192,6 +204,11 @@ export async function getLastSevenDaysWorkouts(): Promise<{
 				select: {
 					name: true,
 					image: true,
+				},
+			},
+			workoutDay: {
+				include: {
+					level: true,
 				},
 			},
 		},
@@ -269,6 +286,7 @@ export async function updateWorkout(
 	formData: {
 		date: string;
 		name: string | null;
+		workoutDayId: string;
 		exercises: ExerciseInput[];
 	},
 ) {
@@ -278,7 +296,7 @@ export async function updateWorkout(
 			throw new Error("Unauthorized");
 		}
 
-		const { date, name, exercises } = formData;
+		const { date, name, workoutDayId, exercises } = formData;
 
 		// Verify the user owns the workout they are trying to update
 		const existingWorkout = await prisma.workout.findUnique({
@@ -311,6 +329,7 @@ export async function updateWorkout(
 				data: {
 					date: new Date(date),
 					name: name,
+					workoutDayId: workoutDayId,
 					// Create new exercises and sets
 					exercises: {
 						create: exercises.map((exercise) => ({
@@ -345,4 +364,74 @@ export async function updateWorkout(
 		}
 		throw new Error(errorMessage);
 	}
+}
+
+// Function to get workout day names from the user's current level
+export async function getWorkoutDayNames() {
+	const session = await auth();
+
+	if (!session?.user?.id) {
+		return [];
+	}
+
+	const user = await prisma.user.findUnique({
+		where: { id: session.user.id },
+		include: {
+			currentLevel: {
+				include: {
+					workoutDays: {
+						orderBy: { dayNumber: "asc" },
+					},
+				},
+			},
+		},
+	});
+
+	if (!user?.currentLevel?.workoutDays) {
+		return [];
+	}
+
+	// Extract the names from workout days and ensure they're not null
+	return user.currentLevel.workoutDays;
+}
+
+// Get a single workout by ID
+export async function getWorkoutById(
+	id: string,
+): Promise<WorkoutWithDetails | null> {
+	const session = await auth();
+
+	if (!session?.user) {
+		redirect("/auth/signin");
+	}
+
+	const workout = await prisma.workout.findUnique({
+		where: {
+			id,
+			userId: session.user.id,
+		},
+		include: {
+			exercises: {
+				include: {
+					sets: true,
+				},
+				orderBy: {
+					createdAt: "asc",
+				},
+			},
+			user: {
+				select: {
+					name: true,
+					image: true,
+				},
+			},
+			workoutDay: {
+				include: {
+					level: true,
+				},
+			},
+		},
+	});
+
+	return workout;
 }

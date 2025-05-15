@@ -1,55 +1,75 @@
-import { auth } from "@/auth";
 import { redirect, notFound } from "next/navigation";
-import prisma from "@/lib/prisma";
+import { auth } from "@/auth";
 import { WorkoutHeader } from "@/components/workout/WorkoutHeader";
-// Import the refactored WorkoutForm AND its expected prop type
-import {
-	WorkoutForm,
-	type InitialWorkoutData,
-} from "@/components/workout/WorkoutForm";
+import { WorkoutForm } from "@/components/workout/WorkoutForm";
+import { getWorkoutDayNames } from "@/actions/workouts";
+import prisma from "@/lib/prisma";
 
-export default async function EditWorkoutPage({
+export default async function EditWorkout({
 	params,
 }: {
 	params: Promise<{ id: string }>;
 }) {
 	const session = await auth();
 
-	if (!session) {
+	// Redirect unauthenticated users to login
+	if (!session?.user) {
 		redirect("/auth/signin");
 	}
 
-	// Fetch the workout data to pass to the form
+	// Get workout details
 	const { id } = await Promise.resolve(params);
 	const workout = await prisma.workout.findUnique({
 		where: {
 			id,
-			userId: session.user.id, // Ensure user can only edit their own workouts
 		},
 		include: {
 			exercises: {
 				include: {
 					sets: true,
 				},
-				orderBy: { createdAt: "asc" }, // Maintain order
 			},
 		},
 	});
 
-	// If workout not found or doesn't belong to user, show 404
 	if (!workout) {
 		notFound();
 	}
 
-	// The fetched workout structure should match InitialWorkoutData
-	// if the Prisma query is correct. We don't need the transformation.
-	const initialDataForForm: InitialWorkoutData = workout;
+	// Check if user has access to this workout
+	const isOwner = workout.userId === session.user.id;
+	const isAdmin = session.user.role === "ADMIN";
+
+	if (!isOwner && !isAdmin) {
+		redirect("/");
+	}
+
+	const workoutDays = await getWorkoutDayNames();
 
 	return (
-		<div className="container mx-auto px-4 py-4 sm:py-8 space-y-4 sm:space-y-6">
-			<WorkoutHeader title="Edit Workout" />
-			{/* Pass the correctly typed data without casting */}
-			<WorkoutForm initialData={initialDataForForm} />
+		<div className="container mx-auto px-4 py-4 sm:py-6 space-y-4 sm:space-y-6">
+			<WorkoutHeader
+				title="Edit Workout"
+				description="Update your workout details"
+				backHref={`/workout/${id}`}
+			/>
+			<WorkoutForm
+				workoutDays={workoutDays}
+				initialWorkout={{
+					id: workout.id,
+					date: workout.date,
+					name: workout.name || "",
+					workoutDayId: workout.workoutDayId || "",
+					exercises: workout.exercises.map((exercise) => ({
+						name: exercise.name,
+						sets: exercise.sets.map((set) => ({
+							reps: set.reps,
+							weight: set.weight || 0,
+							weightUnit: set.weightUnit,
+						})),
+					})),
+				}}
+			/>
 		</div>
 	);
 }

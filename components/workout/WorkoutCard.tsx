@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, Dumbbell } from "lucide-react";
+import { ArrowRight, Dumbbell, BarChart3 } from "lucide-react";
 import { WeightUnit } from "@/lib/generated/prisma/client";
 
 interface Set {
@@ -32,6 +32,14 @@ interface WorkoutCardProps {
 		id: string;
 		date: string;
 		name: string | null;
+		level?: {
+			name: string;
+			id: string;
+		} | null;
+		workoutDay?: {
+			name: string;
+			id: string;
+		} | null;
 		exercises: Array<{
 			name: string;
 			sets: Array<{
@@ -92,6 +100,27 @@ export function WorkoutCard({ workout }: WorkoutCardProps) {
 						<p className="text-sm text-muted-foreground">
 							{format(new Date(workout.date), "EEEE, MMMM d, yyyy")}
 						</p>
+						{workout.workoutDay && (
+							<Badge variant="outline" className="mt-1">
+								{workout.workoutDay.name}
+							</Badge>
+						)}
+						{workout.level && (
+							<Badge variant="secondary" className="mt-1 ml-2">
+								{workout.level.name}
+							</Badge>
+						)}
+						{workout.level && workout.workoutDay && (
+							<div className="mt-2">
+								<Link
+									href={`/levels/${encodeURIComponent(workout.level.name)}/${encodeURIComponent(workout.workoutDay.name)}`}
+									className="flex items-center text-xs px-2 py-1 rounded-md bg-primary/10 hover:bg-primary/20 text-primary transition-colors w-fit"
+								>
+									<BarChart3 className="h-3 w-3 mr-1.5" />
+									View Progress
+								</Link>
+							</div>
+						)}
 					</div>
 					<Button
 						asChild

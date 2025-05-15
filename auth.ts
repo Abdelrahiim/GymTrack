@@ -63,18 +63,23 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 					id: user.id,
 					email: user.email,
 					name: user.name,
+					role: user.role,
 				};
 			},
 		}),
 	],
 	callbacks: {
-		async session({ session, user }) {
+		async jwt({ token, user }) {
+			if (user) {
+				token.id = user.id;
+				token.role = user.role;
+			}
+			return token;
+		},
+		async session({ session, token }) {
 			if (session.user) {
-				session.user.id = user.id;
-				const dbUser = await prisma.user.findUnique({
-					where: { id: user.id },
-				});
-				session.user.role = dbUser?.role;
+				session.user.id = token.id as string;
+				session.user.role = token.role as "ADMIN" | "USER";
 			}
 			return session;
 		},
@@ -84,7 +89,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 		error: "/auth/error",
 	},
 	session: {
-		strategy: "database",
+		strategy: "jwt",
+		maxAge: 30 * 24 * 60 * 60,
 	},
 	debug: process.env.NODE_ENV === "development",
 });

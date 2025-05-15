@@ -56,6 +56,11 @@ model User {
   sessions      Session[]
   workouts      Workout[]
   createdAt     DateTime  @default(now())
+  
+  // New fields for level management
+  levels        Level[]
+  currentLevelId String?  @map("current_level_id")
+  currentLevel   Level?   @relation("CurrentUserLevel", fields: [currentLevelId], references: [id])
  
   @@map("users")
 }
@@ -83,6 +88,10 @@ model Workout {
   exercises Exercise[]
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
+  
+  // Optional relation to workout day
+  workoutDayId String?
+  workoutDay   WorkoutDay? @relation(fields: [workoutDayId], references: [id])
 
   @@index([name])
   @@map("workouts")
@@ -117,4 +126,38 @@ model Set {
   updatedAt  DateTime @updatedAt
 
   @@map("sets")
+}
+
+// New models for level-based workout management
+
+model Level {
+  id                String       @id @default(cuid())
+  name              String       // e.g., "Level-1", "Level-2"
+  description       String?
+  daysPerWeek       Int          // Number of workout days per week
+  userId            String       // The user this level belongs to
+  user              User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workoutDays       WorkoutDay[]
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+  
+  // Relation for user's current level
+  currentForUsers   User[]       @relation("CurrentUserLevel")
+
+  @@map("levels")
+}
+
+model WorkoutDay {
+  id          String     @id @default(cuid())
+  name        String     // e.g., "Chest Day", "Cardio", "Rest Day"
+  description String?
+  dayNumber   Int        // The day position in the week (1-7)
+  levelId     String     // The level this workout day belongs to
+  level       Level      @relation(fields: [levelId], references: [id], onDelete: Cascade)
+  workouts    Workout[]  // Workouts associated with this day
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@unique([levelId, dayNumber]) // Ensure each day number is unique within a level
+  @@map("workout_days")
 }

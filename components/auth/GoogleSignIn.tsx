@@ -5,7 +5,6 @@ import { signIn } from "next-auth/react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
 
 interface GoogleSignInProps {
 	isSignUp?: boolean;
@@ -18,8 +17,8 @@ export function GoogleSignIn({ isSignUp = false }: GoogleSignInProps) {
 		try {
 			setIsLoading(true);
 			await signIn("google", {
-				callbackUrl: "/api/auth/callback/google",
 				redirect: true,
+				callbackUrl: "/",
 			});
 		} catch (error) {
 			console.error("Google sign in error:", error);

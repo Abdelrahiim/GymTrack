@@ -13,20 +13,28 @@
 
 ## Overview
 
-Cap M.Saleh is a modern, full-stack web application designed to help users log their gym workouts, track their progress over time, and visualize their training data. It features user authentication, role-based access control (User/Admin), and a clean interface built with Next.js and Shadcn/UI. Admins have additional capabilities to manage users and view aggregated workout data.
+Cap M.Saleh is a modern, full-stack web application designed to help users log their gym workouts, track their progress over time, and visualize their training data. It features user authentication, role-based access control (User/Admin), training level management, and a clean interface built with Next.js and Shadcn/UI. Admins have additional capabilities to manage users, training levels, and view aggregated workout data.
 
 ## Features ✨
 
-*   **User Authentication:** Secure sign-up, sign-in, and session management using NextAuth.js.
+*   **User Authentication:** Secure sign-up, sign-in, and session management using NextAuth.js with improved validation.
 *   **Workout Logging:** Easily log new workouts, including exercises, sets, reps, and weight.
 *   **Workout History:** View a detailed history of past workouts.
-*   **Progress Tracking:** Visualize workout volume and other metrics over time (future enhancement).
+*   **Training Level Management:**
+    *   Create, update, and delete training programs and levels.
+    *   Assign users to specific training levels.
+    *   Organize workouts by training level and workout day.
+*   **Progress Tracking:** 
+    *   Visualize workout volume and exercise progress over time.
+    *   Training consistency charts and metrics.
+    *   Support for different weight units.
 *   **Admin Dashboard:**
-    *   Manage users (add, delete, change roles).
-    *   View all user workouts grouped by date.
+    *   Manage users (add, delete, change roles, assign training levels).
+    *   View all user workouts grouped by date and training level.
     *   (Admin data is excluded from admin views for privacy/clarity).
 *   **Responsive Design:** User-friendly interface on both desktop and mobile devices.
 *   **Dark/Light Mode:** Theme switching support using `next-themes`.
+*   **Improved Loading States:** Integrated Suspense and loading indicators for better user experience.
 
 ## Tech Stack 🛠️
 
@@ -35,7 +43,7 @@ Cap M.Saleh is a modern, full-stack web application designed to help users log t
 *   **Authentication:** [NextAuth.js](https://next-auth.js.org/) (v5 Beta)
 *   **Database:** [PostgreSQL](https://www.postgresql.org/) (via `pg`)
 *   **ORM:** [Prisma](https://www.prisma.io/)
-*   **UI Components:** [Shadcn/UI](https://ui.shadcn.com/)
+*   **UI Components:** [Shadcn/UI](https://ui.shadcn.com/) including Dialog, Table, Separator
 *   **Styling:** [Tailwind CSS](https://tailwindcss.com/) (v4)
 *   **Forms:** [React Hook Form](https://react-hook-form.com/) with [Zod](https://zod.dev/) for validation
 *   **Charting:** [Recharts](https://recharts.org/)
@@ -125,24 +133,50 @@ gym-training/
 │   ├── (auth)/           # Authentication routes (signin, error, etc.) - Grouped, no layout segment
 │   ├── admin/            # Admin-specific pages (users, workouts)
 │   ├── api/              # API routes (e.g., NextAuth callback)
+│   ├── levels/           # Training level pages and level-specific workouts
 │   ├── workout/          # Workout related pages (list, detail, new, edit)
 │   ├── layout.tsx        # Root layout
+│   ├── loading.tsx       # Global loading component
 │   ├── page.tsx          # Main dashboard page ('/')
 │   ├── globals.css       # Global styles
 │   ├── not-found.tsx     # Custom 404 page
 │   └── forbidden.tsx     # Custom 403 page
-├── actions/              # Server Actions (auth, users, workouts)
+├── actions/              # Server Actions
+│   ├── auth.ts           # Authentication actions
+│   ├── dashboard.ts      # Dashboard data and metrics
+│   ├── levels.ts         # Training level management
+│   ├── userActions.ts    # User management actions
+│   └── workouts.ts       # Workout management
 ├── components/           # Reusable UI components (mostly client-side)
 │   ├── admin/            # Admin-specific components
+│   │   ├── CreateLevelDialog.tsx  # Training level creation
+│   │   ├── DeleteLevelDialog.tsx  # Training level deletion
+│   │   ├── LevelChangeForm.tsx    # User level assignment
+│   │   └── UpdateLevelDialog.tsx  # Training level updates
 │   ├── auth/             # Authentication components (forms, buttons)
 │   ├── dashboard/        # Dashboard-specific components
+│   │   ├── ConsistencyChart.tsx   # Training consistency visualization
+│   │   └── TrainingDaysInfo.tsx   # Training days metrics
 │   ├── layout/           # Layout components (Navbar, ThemeToggle)
+│   ├── levels/           # Level-specific components
+│   │   └── ExerciseProgressChart.tsx  # Exercise progress visualization
 │   ├── providers/        # Context providers (Theme, Session)
-│   ├── ui/               # Shadcn/UI base components (Button, Input, etc.)
+│   ├── ui/               # Shadcn/UI base components
+│   │   ├── button.tsx    # Button component
+│   │   ├── dialog.tsx    # Dialog component
+│   │   ├── loading.tsx   # Loading indicators
+│   │   ├── spinner.tsx   # Spinner component
+│   │   ├── table.tsx     # Table component
+│   │   ├── textarea.tsx  # Textarea component
+│   │   └── ... other UI components
 │   └── workout/          # Workout specific components (Card, Form, Filter)
 ├── lib/                  # Utility functions, Prisma client instance, validations
 │   ├── generated/        # Prisma client output (generated)
 │   ├── validations/      # Zod schemas
+│   │   ├── auth.ts       # Authentication validation
+│   │   ├── levels.ts     # Level management validation
+│   │   ├── workout.ts    # Workout validation
+│   │   └── ... other validation schemas
 │   ├── prisma.ts         # Prisma client singleton
 │   └── utils.ts          # General utility functions
 ├── prisma/               # Prisma configuration

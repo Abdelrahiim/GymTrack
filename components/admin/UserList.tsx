@@ -2,12 +2,14 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { updateUserRole, deleteUser } from "@/actions/users";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Eye } from "lucide-react";
 
 interface User {
 	id: string;
@@ -23,7 +25,13 @@ export function UserList({ users }: { users: User[] }) {
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 
-	const handleRoleToggle = async (userId: string, currentRole: string) => {
+	const handleRoleToggle = async (
+		userId: string,
+		currentRole: string,
+		e: React.MouseEvent,
+	) => {
+		e.stopPropagation();
+		e.preventDefault();
 		setLoading(true);
 		setError(null);
 		const newRole = currentRole === "ADMIN" ? "USER" : "ADMIN";
@@ -39,7 +47,9 @@ export function UserList({ users }: { users: User[] }) {
 		}
 	};
 
-	const handleDeleteUser = async (userId: string) => {
+	const handleDeleteUser = async (userId: string, e: React.MouseEvent) => {
+		e.stopPropagation();
+		e.preventDefault();
 		if (!window.confirm("Are you sure you want to delete this user?")) {
 			return;
 		}
@@ -68,7 +78,7 @@ export function UserList({ users }: { users: User[] }) {
 
 			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 				{users.map((user) => (
-					<Card key={user.id} className="hover:shadow-md transition-shadow">
+					<Card key={user.id} className="h-full flex flex-col">
 						<CardHeader className="pb-2">
 							<div className="flex items-center space-x-4">
 								<div className="relative h-12 w-12">
@@ -76,14 +86,14 @@ export function UserList({ users }: { users: User[] }) {
 										<Image
 											className="rounded-full"
 											src={user.image}
-											alt=""
+											alt={user.name || "User avatar"}
 											fill
 											sizes="48px"
 										/>
 									) : (
 										<div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center">
 											<span className="text-muted-foreground text-lg font-medium">
-												{user.name?.charAt(0) || "U"}
+												{user.name?.charAt(0).toUpperCase() || "U"}
 											</span>
 										</div>
 									)}
@@ -96,7 +106,7 @@ export function UserList({ users }: { users: User[] }) {
 								</div>
 							</div>
 						</CardHeader>
-						<CardContent className="space-y-4">
+						<CardContent className="space-y-4 flex-grow">
 							<div className="flex items-center justify-between">
 								<div className="space-y-1">
 									<p className="text-sm text-muted-foreground">Role</p>
@@ -119,7 +129,7 @@ export function UserList({ users }: { users: User[] }) {
 									variant="outline"
 									size="sm"
 									disabled={loading}
-									onClick={() => handleRoleToggle(user.id, user.role)}
+									onClick={(e) => handleRoleToggle(user.id, user.role, e)}
 									className="flex-1"
 								>
 									{user.role === "ADMIN" ? "Make User" : "Make Admin"}
@@ -128,13 +138,20 @@ export function UserList({ users }: { users: User[] }) {
 									variant="destructive"
 									size="sm"
 									disabled={loading}
-									onClick={() => handleDeleteUser(user.id)}
+									onClick={(e) => handleDeleteUser(user.id, e)}
 									className="flex-1"
 								>
 									Delete
 								</Button>
 							</div>
 						</CardContent>
+						<div className="p-4 border-t">
+							<Link href={`/admin/users/${user.id}`}>
+								<Button className="w-full">
+									<Eye className="mr-2 h-4 w-4" /> View Details
+								</Button>
+							</Link>
+						</div>
 					</Card>
 				))}
 			</div>
